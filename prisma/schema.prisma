@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  email    String  @id
+  f_name   String?
+  role     String? @map("_role")
+  password String? @map("_password")
+
+  @@map("user_table")
+}
+
+model Task {
+  title    String
+  due_date DateTime @db.Date
+  priority String
+  status   String   @map("_status")
+  assign   String
+  desc     String   @map("_desc")  
+  admin_email    String
+  @@id([title, assign])
+  @@map("task_table")
+}
