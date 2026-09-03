@@ -1,5 +1,6 @@
 "use client";
-import { useState, useContext } from "react";
+
+import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import context from "@/context/context";
@@ -14,37 +15,65 @@ const Create_Task = () => {
   const [status, setStatus] = useState("Pending");
   const [assign, setAssign] = useState("");
   const [desc, setDesc] = useState("");
-  const { assignees, router, showSideBar, setAssigneeEmail } =
-    useContext(context);
-  const email = localStorage.getItem("email");
-  const handleCreateTask = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const [email, setEmail] = useState<string | null>(null);
+
+  const {
+    assignees,
+    router,
+    showSideBar,
+    setAssigneeEmail,
+  } = useContext(context);
+
+  // Access localStorage only in the browser
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("email");
+
+    if (storedEmail) {
+      setEmail(storedEmail);
+    }
+  }, []);
+
+  const handleCreateTask = async (
+    e: React.SubmitEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
-    const response = await axios.post(
-      `api/task/admin/create`,
-      {
-        title: title,
-        due_date: date,
-        priority: priority,
-        status: status,
-        assign: assign,
-        desc: desc,
-        email: email,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      },
-    );
+    if (!email) {
+      toast.error("User email not found");
+      return;
+    }
 
-    const data = response.data;
-    if (data.status === 201) {
-      toast.success(data["message"]);
-      router.back();
-    } else {
-      toast.error(data["message"]);
+    try {
+      const response = await axios.post(
+        "/api/task/admin/create",
+        {
+          title,
+          due_date: date,
+          priority,
+          status,
+          assign,
+          desc,
+          email,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      const data = response.data;
+
+      if (data.status === 201) {
+        toast.success(data.message);
+        router.back();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create task");
     }
   };
 
@@ -58,8 +87,10 @@ const Create_Task = () => {
             </div>
           )}
         </div>
+
         <div className="w-full">
           <Navbar />
+
           <div className="bg-[#F5F5F5] w-full min-h-screen flex justify-center items-center p-8">
             <form
               onSubmit={handleCreateTask}
@@ -70,6 +101,7 @@ const Create_Task = () => {
                   <label className="block text-sm font-medium text-gray-800 mb-2">
                     Title
                   </label>
+
                   <input
                     name="title"
                     type="text"
@@ -77,9 +109,7 @@ const Create_Task = () => {
                     required
                     value={title}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                    onChange={(e) => {
-                      setTitle(e.target.value);
-                    }}
+                    onChange={(e) => setTitle(e.target.value)}
                   />
                 </div>
 
@@ -87,18 +117,15 @@ const Create_Task = () => {
                   <label className="block text-sm font-medium text-gray-800 mb-2">
                     Due Date
                   </label>
-                  <div className="relative">
-                    <input
-                      name="date"
-                      type="date"
-                      required
-                      value={date}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none"
-                      onChange={(e) => {
-                        setDate(e.target.value);
-                      }}
-                    />
-                  </div>
+
+                  <input
+                    name="date"
+                    type="date"
+                    required
+                    value={date}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none"
+                    onChange={(e) => setDate(e.target.value)}
+                  />
                 </div>
 
                 <div>
@@ -108,13 +135,12 @@ const Create_Task = () => {
                   >
                     Priority
                   </label>
+
                   <select
                     name="priority"
                     value={priority}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none bg-white"
-                    onChange={(e) => {
-                      setPriority(e.target.value);
-                    }}
+                    onChange={(e) => setPriority(e.target.value)}
                   >
                     <option value="Low">Low</option>
                     <option value="Normal">Normal</option>
@@ -129,13 +155,12 @@ const Create_Task = () => {
                   >
                     Status
                   </label>
+
                   <select
                     name="status"
                     value={status}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none bg-white"
-                    onChange={(e) => {
-                      setStatus(e.target.value);
-                    }}
+                    onChange={(e) => setStatus(e.target.value)}
                   >
                     <option value="Pending">Pending</option>
                     <option value="Active">Active</option>
@@ -150,10 +175,11 @@ const Create_Task = () => {
                   >
                     Assignee
                   </label>
+
                   <select
                     name="assignee"
                     value={assign}
-                    onChange={(e) => {                      
+                    onChange={(e) => {
                       setAssign(e.target.value);
                       setAssigneeEmail(e.target.value);
                     }}
@@ -168,13 +194,14 @@ const Create_Task = () => {
                         {assignee.email}
                       </option>
                     ))}
-                  </select>{" "}
+                  </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-2">
                     Description
                   </label>
+
                   <input
                     name="desc"
                     type="text"
@@ -182,17 +209,16 @@ const Create_Task = () => {
                     required
                     value={desc}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                    onChange={(e) => {
-                      setDesc(e.target.value);
-                    }}
+                    onChange={(e) => setDesc(e.target.value)}
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end ">
+              <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-10 py-3 rounded-lg transition-all duration-200"
+                  disabled={!email}
+                  className="bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-400 text-white text-sm font-medium px-10 py-3 rounded-lg transition-all duration-200"
                 >
                   Create Task
                 </button>
@@ -206,3 +232,4 @@ const Create_Task = () => {
 };
 
 export default Create_Task;
+
