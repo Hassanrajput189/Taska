@@ -16,6 +16,7 @@ CREATE TABLE `task_table` (
     `_status` VARCHAR(191) NOT NULL,
     `assign` VARCHAR(191) NOT NULL,
     `_desc` VARCHAR(191) NOT NULL,
+    `admin_email` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`title`, `assign`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

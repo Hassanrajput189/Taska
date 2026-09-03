@@ -1,22 +1,30 @@
 import { PrismaClient } from "./generated/prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import fs from "fs";
+import path from "path";
 
-const ca = process.env.DB_CA;
+let ca: string;
 
-if (!ca) {
-  throw new Error("DB_CA is not defined");
+if (process.env.NODE_ENV === "development") {
+  const caPath = path.join(
+    process.cwd(),
+    "certificate",
+    "aiven.pem"
+  );
+
+  ca = fs.readFileSync(caPath, "utf8");
+} else {
+  ca = process.env.DB_CA || "";
+
+  if (!ca) {
+    throw new Error("DB_CA is not defined");
+  }
+
+  // If DB_CA contains literal \n characters
+  ca = ca.replace(/\\n/g, "\n");
 }
 
-const adapter = new PrismaMariaDb({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    ca,
-  },
-});
+const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
 
 export const prisma = new PrismaClient({
   adapter,
