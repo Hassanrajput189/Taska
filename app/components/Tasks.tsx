@@ -51,18 +51,15 @@ const Tasks = () => {
     isAdmin,
     assignees,
   } = useContext(context);
-  
 
   useEffect(() => {
-    const email = localStorage.getItem("email")
+    const email = localStorage.getItem("email");
     if (!email) return;
 
     const fetchData = async () => {
       if (isAdmin) {
-        
         await handleAssigneeFetch();
       } else {
-        
         await handleTaskFetch();
       }
     };
@@ -70,7 +67,6 @@ const Tasks = () => {
     fetchData();
   }, [isAdmin]);
 
-  
   useEffect(() => {
     if (isAdmin && assignees && assignees.length > 0) {
       handleAdminDateFetch();
@@ -78,87 +74,74 @@ const Tasks = () => {
   }, [assignees, isAdmin]);
 
   const handleTaskFetch = async () => {
-    const email = localStorage.getItem("email")
-    try {
-      const response = await axios.post("/api/task/read", {
-        assign: email,
-      });
-      
-      const data = response.data;
-      console.log("tasks" ,data.tasks)
-      if (data.status === 200 && data.tasks.length > 0) {
-        setTasks(data.tasks);
-        setAllTasks(data.tasks);
-      } else {
-        setTasks([]);
-        setAllTasks([]);
-      }
-    } catch (error: any) {
-      console.error("Failed to fetch tasks:", error);
-      toast.error("Failed to fetch tasks");
+    const email = localStorage.getItem("email");
+
+    const response = await axios.post("/api/task/read", {
+      assign: email,
+    });
+
+    const data = response.data;
+    if (data.status === 200 && data.tasks.length > 0) {
+      setTasks(data.tasks);
+      setAllTasks(data.tasks);
+    } else {
+      setTasks([]);
+      setAllTasks([]);
     }
   };
-  
-  const handleAdminDateFetch = async () => {
-    try {
-      const response = await axios.post("/api/task/admin/read", {
-        assignees,
-      });
 
-      const data = response.data;
-      console.log("all tasks",data.tasks)
-      if (data.status === 200) {
-        setTasks(data.tasks);
-        setAllTasks(data.tasks);
-      } else {
-        setTasks([]);
-        setAllTasks([]);
-      }
-    } catch (error) {
-      console.error("Failed to fetch admin tasks:", error);
-      toast.error("Failed to fetch tasks");
+  const handleAdminDateFetch = async () => {
+    const response = await axios.post("/api/task/admin/read", {
+      assignees,
+    });
+
+    const data = response.data;
+    if (data.status === 200) {
+      setTasks(data.tasks);
+      setAllTasks(data.tasks);
+    } else {
+      setTasks([]);
+      setAllTasks([]);
     }
   };
 
   const handleAssigneeFetch = async () => {
-    try {
-      const response = await axios.post("/api/task/admin/assignees");
+    const response = await axios.post("/api/task/admin/assignees");
 
-      const data = response.data;
-      console.log("assignees ",data.data)
-      if (data.status === 200) {
-        setAssignees(data.data);
-      }      
-    } catch (error) {
-      console.error("Failed to fetch assignees:", error);
-      toast.error("Failed to fetch assignees");      
+    const data = response.data;
+
+    if (data.status === 200) {
+      setAssignees(data.data);
     }
   };
-  
+
   const handleTaskDelete = async (title?: string, assign?: string) => {
+    const response = await axios.delete("/api/task/admin/delete", {
+      data: {
+        title,
+        assign,
+      },
+    });
 
-      const response = await axios.delete("/api/task/admin/delete", {
-        data: {
-          title,
-          assign,
-        },
-      });
+    const data = response.data;
 
-      const data = response.data;
+    if (data.status === 200) {
+      setTasks((prev: task_info[]) =>
+        prev.filter(
+          (task) => !(task.title === title && task.assign === assign),
+        ),
+      );
 
-      if (data.status === 200) {
-        setTasks((prev: task_info[]) =>
-          prev.filter((task) => task.title !== title),
-        );
-        setAllTasks((prev: task_info[]) =>
-          prev.filter((task) => task.title !== title),
-        );
+      setAllTasks((prev: task_info[]) =>
+        prev.filter(
+          (task) => !(task.title === title && task.assign === assign),
+        ),
+      );
 
-        toast.success(data.message);
-      } else {
-        toast.error(data.message);
-      }
-
+      toast.success(data.message);
+    } else {
+      toast.error(data.message);
+    }
   };
 
   return (

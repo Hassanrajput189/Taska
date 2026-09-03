@@ -56,7 +56,7 @@ export function requireAdmin(user: {
   email: string;
   role?: string;
 }): AuthorizationResult {
-  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
   if (!adminEmail) {
     console.error("ADMIN_EMAIL is not defined in environment variables");

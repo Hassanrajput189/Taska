@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     const req_data: task_info = await request.json();
-    console.log(req_data);
+
 
     const existing = await prisma.task.findFirst({
       where: {

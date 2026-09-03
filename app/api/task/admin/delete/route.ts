@@ -36,7 +36,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    console.log("Deleting task - Title:", req_data.title, "Assign:", req_data.assign);
+    
 
     // Attempt to delete the task
     await prisma.task.delete({

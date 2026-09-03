@@ -21,7 +21,7 @@ const Create_Task = () => {
     assignees,
     router,
     showSideBar,
-    setAssigneeEmail,
+    
   } = useContext(context);
 
   // Access localStorage only in the browser
@@ -43,7 +43,7 @@ const Create_Task = () => {
       return;
     }
 
-    try {
+    
       const response = await axios.post(
         "/api/task/admin/create",
         {
@@ -71,10 +71,7 @@ const Create_Task = () => {
       } else {
         toast.error(data.message);
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to create task");
-    }
+    
   };
 
   return (
@@ -180,8 +177,7 @@ const Create_Task = () => {
                     name="assignee"
                     value={assign}
                     onChange={(e) => {
-                      setAssign(e.target.value);
-                      setAssigneeEmail(e.target.value);
+                      setAssign(e.target.value);                      
                     }}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none bg-white"
                   >

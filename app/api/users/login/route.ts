@@ -8,8 +8,7 @@ import { cookies } from "next/headers";
 export async function POST(request: Request) {
   const JWT_SECRET = process.env.JWT_SECRET;
   
-  if (!JWT_SECRET) {
-    console.error("JWT_SECRET environment variable is not set");
+  if (!JWT_SECRET) {    
     return NextResponse.json({
       message: "Server configuration error",
       status: 500,
@@ -37,7 +36,7 @@ export async function POST(request: Request) {
       user.password!,
     );
 
-    if (!isMatched) {
+    if (!isMatched) {      
       return NextResponse.json({
         message: "Entered Password is invalid",
         status: 401,

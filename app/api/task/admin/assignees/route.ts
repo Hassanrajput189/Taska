@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { authenticateToken, requireAdmin } from "@/lib/middleware/auth";
 
 export async function POST(request: Request) {
-  try {
+  try {    
     // Authenticate user
     const authResult = await authenticateToken(request);
     if (authResult.error) {

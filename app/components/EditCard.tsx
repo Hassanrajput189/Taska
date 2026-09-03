@@ -1,8 +1,9 @@
 ﻿"use client";
 
 import context from "@/context/context";
-import { user_data,task_info } from "@/interfaces";
+import { user_data, task_info } from "@/interfaces";
 import axios from "axios";
+import { toNamespacedPath } from "path";
 import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -14,25 +15,20 @@ const EditCard = ({
   status,
   desc,
 }: task_info) => {
-  const {
-    setShowEditCard,
-    setTasks,    
-    assignees,
-    isAdmin,
-  } = useContext(context);
+  const { setShowEditCard, setTasks, assignees, isAdmin } = useContext(context);
 
   const [newDate, setNewDate] = useState(due_date);
   const [newAssign, setNewAssign] = useState(assign);
   const [newPriority, setNewPriority] = useState(priority);
   const [newStatus, setNewStatus] = useState(status);
   const [newDesc, setNewDesc] = useState(desc);  
-  const email = localStorage.getItem("email")
-  const name = localStorage.getItem("name")
-  
+  const email = localStorage.getItem("email");
+  const name = localStorage.getItem("name");
+
   const handleUpdate = async () => {
     const updatedTask = {
       title: title,
-      email:email,
+      email: email,
       due_date: newDate,
       priority: newPriority,
       status: newStatus,
@@ -40,47 +36,43 @@ const EditCard = ({
       desc: newDesc,
     };
 
-    
-      const response = await axios.patch(
-        "/api/task/update",
-        updatedTask
-      );
+    const response = await axios.patch("/api/task/update", updatedTask);
 
-      const data = response.data;
-
-      if (response.data.status === 200) {
+    const data = response.data;    
         
-        setTasks((prev: task_info[]) =>
-          prev.map((task) =>
-            task.title === title
-              ? {
-                  ...task,
-                  due_date: newDate,
-                  priority: newPriority,
-                  status: newStatus,
-                  assign: newAssign,
-                  desc: newDesc,
-                }
-              : task
-          )
-        );
-
-        toast.success(data.message);
-        setShowEditCard(false);
-      } else {
-        toast.error(data.message);
-      }
-    
+    if (data.status === 200) { 
+      
+      console.log(updatedTask.assign)
+      console.log(assign)
+      console.log(newAssign)
+      setTasks((prev: task_info[]) =>        
+        prev.map((task) =>          
+          task.title === title && task.assign === newAssign      
+            ? {
+                ...task,
+                due_date: newDate,
+                priority: newPriority,
+                status: newStatus,                
+                desc: newDesc,
+              }
+            : task,
+        ),
+      );
+      
+      toast.success(data.message);
+      setShowEditCard(false);
+    } else if (data.success === 201) {
+      toast.success(data.message);
+    } else {
+      toast.error(data.message);
+    }
   };
 
   return (
     <div className="bg-[#0000005C] fixed inset-0 z-50 w-full min-h-screen flex justify-center items-center p-3 sm:p-5">
       <div className="rounded-xl p-4 sm:p-6 md:p-8 w-full sm:w-[90vw] md:w-[80vw] lg:w-[65vw] h-auto max-h-[90vh] bg-white overflow-y-auto">
-
         <div className="flex justify-between items-center">
-          <div className="font-semibold text-xl sm:text-2xl">
-            Edit Card
-          </div>
+          <div className="font-semibold text-xl sm:text-2xl">Edit Card</div>
 
           <svg
             className="text-gray-500 hover:text-black text-xl font-semibold cursor-pointer"
@@ -100,7 +92,6 @@ const EditCard = ({
         </div>
 
         <div className="flex flex-col gap-5 sm:gap-8 mt-5">
-
           <div className="border border-[#D7D7D7]" />
 
           <div className="text-[#546FFF] font-bold cursor-pointer text-xl sm:text-2xl">
@@ -108,11 +99,8 @@ const EditCard = ({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-
             <div className="flex flex-col gap-2">
-              <div className="text-[#656F7D]">
-                Due Date
-              </div>
+              <div className="text-[#656F7D]">Due Date</div>
 
               <input
                 name="date"
@@ -125,9 +113,7 @@ const EditCard = ({
             </div>
 
             <div className="flex flex-col gap-2">
-              <div className="text-[#656F7D]">
-                Assignee
-              </div>
+              <div className="text-[#656F7D]">Assignee</div>
 
               {isAdmin && assignees && assignees.length > 0 ? (
                 <select
@@ -150,9 +136,7 @@ const EditCard = ({
             </div>
 
             <div className="flex flex-col gap-2">
-              <div className="text-[#656F7D]">
-                Priority
-              </div>
+              <div className="text-[#656F7D]">Priority</div>
 
               <select
                 name="priority"
@@ -167,9 +151,7 @@ const EditCard = ({
             </div>
 
             <div className="flex flex-col gap-2">
-              <div className="text-[#656F7D]">
-                Status
-              </div>
+              <div className="text-[#656F7D]">Status</div>
 
               <select
                 name="status"
@@ -184,15 +166,10 @@ const EditCard = ({
             </div>
 
             <div className="flex flex-col gap-2">
-              <div className="text-[#656F7D]">
-                Assigned by
-              </div>
+              <div className="text-[#656F7D]">Assigned by</div>
 
-              <div className="font-semibold text-gray-700 py-3">
-                {name}
-              </div>
+              <div className="font-semibold text-gray-700 py-3">{name}</div>
             </div>
-
           </div>
 
           <div>
@@ -215,7 +192,6 @@ const EditCard = ({
               Save Changes
             </button>
           </div>
-
         </div>
       </div>
     </div>

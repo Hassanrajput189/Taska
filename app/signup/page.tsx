@@ -40,7 +40,13 @@ const Signup = () => {
 
       const data = response.data;        
 
-      data["status"] === 201?toast.success(data["message"]):toast.error(data["message"])
+      if(data.status ===201){
+        toast.success(data.message)
+        router.push("/")
+      }
+      else{
+        toast.error(data.message)
+      }
       
     
   };
