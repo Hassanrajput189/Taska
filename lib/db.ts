@@ -21,3 +21,7 @@ const adapter = new PrismaMariaDb({
     ca: fs.readFileSync(caPath),
   },
 });
+
+export const prisma = new PrismaClient({
+  adapter,
+});
