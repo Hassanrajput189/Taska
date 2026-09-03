@@ -7,14 +7,14 @@ import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   const JWT_SECRET = process.env.JWT_SECRET;
-  
-  if (!JWT_SECRET) {    
+
+  if (!JWT_SECRET) {
     return NextResponse.json({
       message: "Server configuration error",
       status: 500,
     });
   }
-  
+
   try {
     const req_data: user_data = await request.json();
 
@@ -31,12 +31,9 @@ export async function POST(request: Request) {
       });
     }
 
-    const isMatched = await bcrypt.compare(
-      req_data.password!,
-      user.password!,
-    );
+    const isMatched = await bcrypt.compare(req_data.password!, user.password!);
 
-    if (!isMatched) {      
+    if (!isMatched) {
       return NextResponse.json({
         message: "Entered Password is invalid",
         status: 401,
@@ -71,7 +68,7 @@ export async function POST(request: Request) {
 
     response.cookies.set("token", newToken, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24,
