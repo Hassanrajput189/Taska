@@ -9,7 +9,7 @@ if (!filePath) {
   throw new Error("DB_CF is not defined");
 }
 
-const caPath = path.resolve(process.cwd(), filePath);
+
 
 const adapter = new PrismaMariaDb({
   host: process.env.DB_HOST,
@@ -18,7 +18,7 @@ const adapter = new PrismaMariaDb({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: {
-    ca: fs.readFileSync(caPath),
+    ca: fs.readFileSync(filePath),
   },
 });
 
