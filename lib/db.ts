@@ -1,15 +1,13 @@
 import { PrismaClient } from "./generated/prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import path from "path";
 import fs from "fs";
+import path from "path";
 
-const filePath = process.env.DB_CF;
-
-if (!filePath) {
-  throw new Error("DB_CF is not defined");
-}
-
-
+const caPath = path.join(
+  process.cwd(),
+  "certificate",
+  "isrgrootx1.pem"
+);
 
 const adapter = new PrismaMariaDb({
   host: process.env.DB_HOST,
@@ -18,7 +16,7 @@ const adapter = new PrismaMariaDb({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: {
-    ca: fs.readFileSync(filePath),
+    ca: fs.readFileSync(caPath),
   },
 });
 
