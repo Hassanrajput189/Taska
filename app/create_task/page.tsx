@@ -7,6 +7,7 @@ import context from "@/context/context";
 import toast from "react-hot-toast";
 import { user_data } from "@/interfaces";
 import SideBar from "../components/SideBar";
+import { handleTaskFetch,handleAssigneeFetch } from "@/utils";
 
 const Create_Task = () => {
   const [title, setTitle] = useState("");
@@ -14,32 +15,32 @@ const Create_Task = () => {
   const [priority, setPriority] = useState("Low");
   const [status, setStatus] = useState("Pending");
   const [assign, setAssign] = useState("");
-  const [desc, setDesc] = useState("");
-  const [email, setEmail] = useState<string | null>(null);
-
+  const [desc, setDesc] = useState("");  
+  const [loading,setLoading] = useState(false)
+  const [email,setEmail] = useState<string|null>("")
   const {
     assignees,
     router,
-    showSideBar,
-    
+    showSideBar,        
+
+    setTasks,    
   } = useContext(context);
 
-  // Access localStorage only in the browser
+  
   useEffect(() => {
-    const storedEmail = localStorage.getItem("email");
-
-    if (storedEmail) {
-      setEmail(storedEmail);
-    }
-  }, []);
-
+  const storedEmail = localStorage.getItem("email");
+  setEmail(storedEmail);
+}, []);
   const handleCreateTask = async (
     e: React.SubmitEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
+  ) => {  
+    e.preventDefault();  
+    setLoading(true)
+    
 
     if (!email) {
       toast.error("User email not found");
+      setLoading(false)
       return;
     }
 
@@ -66,9 +67,12 @@ const Create_Task = () => {
       const data = response.data;
 
       if (data.status === 201) {
+        handleTaskFetch(email,setTasks)        
         toast.success(data.message);
+        setLoading(false)        
         router.back();
       } else {
+        setLoading(false)
         toast.error(data.message);
       }
     
@@ -212,11 +216,11 @@ const Create_Task = () => {
 
               <div className="flex justify-end">
                 <button
-                  type="submit"
-                  disabled={!email}
+                  type="submit"                  
+                  disabled={!email || loading}
                   className="bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-400 text-white text-sm font-medium px-10 py-3 rounded-lg transition-all duration-200"
                 >
-                  Create Task
+                  {loading?"Creating Task...":"Create Task"}
                 </button>
               </div>
             </form>

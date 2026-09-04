@@ -2,6 +2,7 @@
 import { task_info } from "@/interfaces";
 import { prisma } from "@/lib/db";
 import { authenticateToken } from "@/lib/middleware/auth";
+import { exit } from "process";
 
 export async function PATCH(request: Request) {
   let req_data: task_info = {};
@@ -31,7 +32,6 @@ export async function PATCH(request: Request) {
     const isAdmin =
       authResult.user!.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
-    
     // If not admin, verify user owns the task they're updating
     if (!isAdmin && authResult.user!.email !== req_data.assign) {
       return NextResponse.json(
@@ -59,7 +59,7 @@ export async function PATCH(request: Request) {
       // For regular users, always use their authenticated email
       updateData.assign = authResult.user!.email;
     }
-    
+
     const existing = await prisma.task.findFirst({
       where: {
         title: req_data.title,
@@ -67,25 +67,38 @@ export async function PATCH(request: Request) {
       },
     });
 
-    if (existing) {      
-    // Update the task using the original assign field for composite key lookup
-    const updatedTask = await prisma.task.update({
-      where: {
-        title_assign: {
-          title: req_data.title,
-          assign: req_data.assign,
+    if (existing) {
+      const isSame =
+        (updateData.priority === undefined ||
+          updateData.priority === existing.priority) &&
+        (updateData.status === undefined ||
+          updateData.status === existing.status) &&
+        (updateData.desc === undefined || updateData.desc === existing.desc) &&
+        (updateData.due_date === undefined ||
+          new Date(updateData.due_date).getTime() ===
+            new Date(existing.due_date).getTime());
+      if (isSame) {
+        return NextResponse.json({
+          message: "cannot update with the same values",
+          status: 409,
+        });
+      }
+      const updatedTask = await prisma.task.update({
+        where: {
+          title_assign: {
+            title: req_data.title,
+            assign: req_data.assign,
+          },
         },
-      },
-      data: updateData,
-    });
+        data: updateData,
+      });
 
-    return NextResponse.json({
-      message: "Task updated successfully!",
-      status: 200,
-      task: updatedTask,
-    });      
-    }
-    else{
+      return NextResponse.json({
+        message: "Task updated successfully!",
+        status: 200,
+        task: updatedTask,
+      });
+    } else {
       const createdTask = await prisma.task.create({
         data: {
           title: req_data.title!,
@@ -100,17 +113,13 @@ export async function PATCH(request: Request) {
         task: createdTask,
       });
     }
-
-    
   } catch (error: any) {
-    console.error("Update task error:", error);    
+    console.error("Update task error:", error);
 
-    return NextResponse.json(
-      {
-        message: "Failed to update task",
-        status: 500,
-        error: error.message,
-      },      
-    );
+    return NextResponse.json({
+      message: "Failed to update task",
+      status: 500,
+      error: error.message,
+    });
   }
 }

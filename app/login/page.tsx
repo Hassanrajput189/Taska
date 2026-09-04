@@ -1,19 +1,18 @@
 "use client";
 import { useContext, useState, useEffect } from "react";
 import axios from "axios";
-import Link from "next/link";
 import context from "@/context/context";
 import toast from "react-hot-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const { router } = useContext(context);
+  const [password, setPassword] = useState("");  
+  const [loading,setLoading] = useState(false)
+  const { router,setIsAdmin } = useContext(context);
 
   const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    setLoading(true)
     const response = await axios.post(
       `/api/users/login`,
       {
@@ -35,9 +34,11 @@ const Login = () => {
       localStorage.setItem("email", data.data.email);
 
       toast.success(data["message"]);
+      setLoading(false)
       router.push("/");
     } else {
       toast.error(data["message"]);
+      setLoading(false)
     }
   };
 
@@ -117,25 +118,13 @@ const Login = () => {
               </div>
 
               <button
+                disabled = {loading}
                 type="submit"
                 className="w-full bg-indigo-500 text-white py-3 rounded-2xl font-semibold hover:bg-indigo-700 transition-all duration-200"
               >
-                SIGN IN
+                {loading?"Signing you in...":"SIGN IN"}
               </button>
-            </form>
-            {isAdmin && (
-              <div className="mt-6 text-center">
-                <p className="text-gray-400">
-                  Don't have an account?{" "}
-                  <Link
-                    href="/signup"
-                    className="text-indigo-400 hover:text-indigo-300 font-medium"
-                  >
-                    Sign up
-                  </Link>
-                </p>
-              </div>
-            )}
+            </form>            
           </div>
         </div>
       </div>

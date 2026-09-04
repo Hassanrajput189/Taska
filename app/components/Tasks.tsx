@@ -1,121 +1,32 @@
 ﻿"use client";
 
-import { useContext, useEffect, useState } from "react";
-import axios from "axios";
+import { useContext } from "react";
 import context from "@/context/context";
 import { task_info } from "@/interfaces";
+import axios from "axios"
 import toast from "react-hot-toast";
+import {   
+  getPriorityFlag,
+  getStatusClass 
+} from "@/utils";
 
-export const getStatusClass = (status?: string) => {
-  const lowerStatus = status?.toLocaleLowerCase();
-  switch (lowerStatus) {
-    case "pending":
-      return "bg-yellow-500";
-
-    case "active":
-      return "bg-green-500 ";
-
-    case "closed":
-      return "bg-red-500 ";
-
-    default:
-      return "bg-gray-300 text-black";
-  }
-};
-export const getPriorityFlag = (priority?: string) => {
-  const lowerPriority = priority?.toLowerCase();
-  switch (lowerPriority) {
-    case "low":
-      return "yellowFlag.svg";
-
-    case "normal":
-      return "greenFlag.svg";
-
-    case "high":
-      return "redFlag.svg";
-
-    default:
-      return "window.svg";
-  }
-};
 
 const Tasks = () => {
   const {
-    tasks,
-    setTasks,
+    tasks,    
     setShowTask,
     setSelectedTask,
-    setShowEditCard,
-    setAllTasks,
-    setAssignees,
+    setShowEditCard,    
     isAdmin,
-    assignees,
+    setTasks,    
   } = useContext(context);
 
-  useEffect(() => {
-    const email = localStorage.getItem("email");
-    if (!email) return;
+  const handleTaskDelete = async (
+  title?: string, 
+  assign?: string,  
 
-    const fetchData = async () => {
-      if (isAdmin) {
-        await handleAssigneeFetch();
-      } else {
-        await handleTaskFetch();
-      }
-    };
-
-    fetchData();
-  }, [isAdmin]);
-
-  useEffect(() => {
-    if (isAdmin && assignees && assignees.length > 0) {
-      handleAdminDateFetch();
-    }
-  }, [assignees, isAdmin]);
-
-  const handleTaskFetch = async () => {
-    const email = localStorage.getItem("email");
-
-    const response = await axios.post("/api/task/read", {
-      assign: email,
-    });
-
-    const data = response.data;
-    if (data.status === 200 && data.tasks.length > 0) {
-      setTasks(data.tasks);
-      setAllTasks(data.tasks);
-    } else {
-      setTasks([]);
-      setAllTasks([]);
-    }
-  };
-
-  const handleAdminDateFetch = async () => {
-    const response = await axios.post("/api/task/admin/read", {
-      assignees,
-    });
-
-    const data = response.data;
-    if (data.status === 200) {
-      setTasks(data.tasks);
-      setAllTasks(data.tasks);
-    } else {
-      setTasks([]);
-      setAllTasks([]);
-    }
-  };
-
-  const handleAssigneeFetch = async () => {
-    const response = await axios.post("/api/task/admin/assignees");
-
-    const data = response.data;
-
-    if (data.status === 200) {
-      setAssignees(data.data);
-    }
-  };
-
-  const handleTaskDelete = async (title?: string, assign?: string) => {
+) => {
+    
     const response = await axios.delete("/api/task/admin/delete", {
       data: {
         title,
@@ -131,12 +42,7 @@ const Tasks = () => {
           (task) => !(task.title === title && task.assign === assign),
         ),
       );
-
-      setAllTasks((prev: task_info[]) =>
-        prev.filter(
-          (task) => !(task.title === title && task.assign === assign),
-        ),
-      );
+      
 
       toast.success(data.message);
     } else {
@@ -144,6 +50,9 @@ const Tasks = () => {
     }
   };
 
+  
+  
+  
   return (
     <div className="border border-[#D7D7D7] rounded-lg px-4 bg-[#FFFFFF]">
       <div className="grid grid-cols-1 sm:grid-cols-[2fr_1.2fr_1.2fr_1fr_1fr_0.8fr] items-center p-3 text-[#656F7D]">

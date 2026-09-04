@@ -1,6 +1,6 @@
 "use client";
 
-import { useState,useEffect} from "react";
+import { useState} from "react";
 import context from "./context";
 import { task_info, user_data } from "@/interfaces";
 import { useRouter} from "next/navigation";
@@ -12,11 +12,11 @@ const [userEmail,setUserEmail] = useState<string|null>(null)
 const [tasks, setTasks] = useState<task_info[]|null>([]);
 const [assignees,setAssignees] = useState<user_data[]|null>([])
 const [selectedTask, setSelectedTask] = useState<task_info | null>(null);
-const [allTasks,setAllTasks] = useState<task_info[]|null>(tasks)
 const [showTask,setShowTask] = useState<boolean|null>(false)
 const [showEditCard, setShowEditCard] = useState<boolean|null>(false);
 const [showSideBar, setShowSideBar] = useState<boolean|null>(false);
 const [isAdmin,setIsAdmin] = useState<boolean|null>(false)
+const [module,setModule] = useState<string|null>("task")
 const router = useRouter()
 
 
@@ -35,15 +35,15 @@ const router = useRouter()
         showTask,
         setShowTask,
         selectedTask,
-        setSelectedTask, 
-        allTasks,
-        setAllTasks,       
+        setSelectedTask,         
         showEditCard,
         setShowEditCard,
         showSideBar,
         setShowSideBar,        
         isAdmin,
-        setIsAdmin,        
+        setIsAdmin,                
+        module,
+        setModule,      
         router,
       }}
     >
@@ -51,5 +51,8 @@ const router = useRouter()
     </context.Provider>
   );
 };
+
+
+
 
 export default ContextProvider;

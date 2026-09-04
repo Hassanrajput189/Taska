@@ -1,56 +1,64 @@
 "use client";
-import axios from "axios"
+import axios from "axios";
 import context from "@/context/context";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 
-
 const Navbar = () => {
-  const {router,setTasks,setAllTasks,setSelectedTask,setIsAdmin,setShowSideBar,showSideBar,setAssignees,setShowTask,setShowEditCard} = useContext(context)
-  const reset = ()=>{
-      localStorage.removeItem("name");
-      localStorage.removeItem("email")        
-        setTasks([])
-        setAllTasks([])
-        setSelectedTask([])        
-        setAssignees([])    
-        setShowTask(false)
-        setShowEditCard(false)    
-        setShowSideBar(false)
-        setIsAdmin(false)
-        }
-  
+  const [loading, setLoading] = useState(false);
+  const {
+    router,
+    setTasks,
+    setSelectedTask,
+    setIsAdmin,
+    setShowSideBar,
+    showSideBar,
+    setAssignees,
+    setShowTask,
+    setShowEditCard,
+    module,
+  } = useContext(context);
+  const reset = () => {
+    localStorage.removeItem("name");
+    localStorage.removeItem("email");
+    setTasks([]);
+    setSelectedTask([]);
+    setAssignees([]);
+    setShowTask(false);
+    setShowEditCard(false);
+    setShowSideBar(false);
+    setIsAdmin(false);
+  };
 
-  const handleLogout = async () => {    
-    
-      const response = await axios.get(
-        `/api/auth/logout`,        
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        },
-      );
+  const handleLogout = async () => {
+    setLoading(true);
+    const response = await axios.get(`/api/auth/logout`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
 
-      const data = response.data;      
-      if (data["status"] === 200) {        
-        reset()
-        toast.success(data["message"])                
-        router.push("/login");
-      } else { 
-        toast.error(data["message"])
-      }
-    
-
+    const data = response.data;
+    if (data["status"] === 200) {
+      reset();
+      toast.success(data["message"]);
+      setLoading(false);
+      router.push("/login");
+    } else {
+      setLoading(false);
+      toast.error(data["message"]);
+    }
   };
   return (
     <nav className="flex justify-between bg-white py-4 px-4">
       <div className="logo flex justify-center items-center gap-2">
-        <div onClick={()=>{          
-          setShowSideBar(!showSideBar)
-        }}>
-          <svg 
+        <div
+          onClick={() => {
+            setShowSideBar(!showSideBar);
+          }}
+        >
+          <svg
             width="20"
             height="17"
             viewBox="0 0 20 17"
@@ -63,15 +71,19 @@ const Navbar = () => {
             />
           </svg>
         </div>
-        <div className="font-bold text-2xl">Task</div>
+        <div className="font-bold text-2xl">
+          {(module === "task" && "TASK") || (module === "user" && "USER")}
+        </div>
       </div>
 
-      <div >
-        <button 
-        onClick={handleLogout}
-        className="  text-white font-semibold bg-[#546FFF] cursor-pointer hover:font-bold transition-all text-md px-5 py-1 rounded-md">
-          Logout
-        </button>        
+      <div>
+        <button
+          disabled={loading}
+          onClick={handleLogout}
+          className="  text-white font-semibold bg-[#546FFF] cursor-pointer hover:font-bold transition-all text-md px-5 py-1 rounded-md"
+        >
+          {loading ? "Logging out..." : "Logout"}
+        </button>
       </div>
     </nav>
   );

@@ -3,7 +3,6 @@
 import context from "@/context/context";
 import { user_data, task_info } from "@/interfaces";
 import axios from "axios";
-import { toNamespacedPath } from "path";
 import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -15,7 +14,7 @@ const EditCard = ({
   status,
   desc,
 }: task_info) => {
-  const { setShowEditCard, setTasks, assignees, isAdmin } = useContext(context);
+  const { setShowEditCard, setTasks, assignees, isAdmin} = useContext(context);
 
   const [newDate, setNewDate] = useState(due_date);
   const [newAssign, setNewAssign] = useState(assign);
@@ -23,7 +22,8 @@ const EditCard = ({
   const [newStatus, setNewStatus] = useState(status);
   const [newDesc, setNewDesc] = useState(desc);  
   const email = localStorage.getItem("email");
-  const name = localStorage.getItem("name");
+  const name = localStorage.getItem("name");  
+  const [loading,setLoading] = useState(false)
 
   const handleUpdate = async () => {
     const updatedTask = {
@@ -35,16 +35,13 @@ const EditCard = ({
       assign: newAssign,
       desc: newDesc,
     };
-
+    setLoading(true)
     const response = await axios.patch("/api/task/update", updatedTask);
 
     const data = response.data;    
         
     if (data.status === 200) { 
-      
-      console.log(updatedTask.assign)
-      console.log(assign)
-      console.log(newAssign)
+          
       setTasks((prev: task_info[]) =>        
         prev.map((task) =>          
           task.title === title && task.assign === newAssign      
@@ -60,10 +57,13 @@ const EditCard = ({
       );
       
       toast.success(data.message);
+      setLoading(false)
       setShowEditCard(false);
-    } else if (data.success === 201) {
+    } else if (data.status === 201) {
+      setLoading(false)
       toast.success(data.message);
     } else {
+      setLoading(false)
       toast.error(data.message);
     }
   };
@@ -185,11 +185,12 @@ const EditCard = ({
 
           <div className="flex justify-end gap-3">
             <button
+              disabled={loading}
               type="button"
               onClick={handleUpdate}
               className="w-full sm:w-auto px-5 py-2 rounded-lg bg-[#546FFF] text-white hover:bg-blue-600 transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              Save Changes
+              {loading?"Updating":"Save Changes"}
             </button>
           </div>
         </div>

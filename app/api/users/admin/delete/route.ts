@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { task_info } from "@/interfaces";
 import { prisma } from "@/lib/db";
 import { authenticateToken, requireAdmin } from "@/lib/middleware/auth";
 
@@ -7,75 +6,93 @@ export async function DELETE(request: Request) {
   try {
     // Authenticate user
     const authResult = await authenticateToken(request);
+
     if (authResult.error) {
       return NextResponse.json(
-        { message: authResult.error, status: authResult.status },
+        {
+          message: authResult.error,
+          status: authResult.status,
+        },
         { status: authResult.status }
       );
     }
 
     // Verify admin role
     const adminCheck = requireAdmin(authResult.user!);
+
     if (adminCheck.error) {
       return NextResponse.json(
-        { message: adminCheck.error, status: adminCheck.status },
+        {
+          message: adminCheck.error,
+          status: adminCheck.status,
+        },
         { status: adminCheck.status }
       );
     }
 
-    const req_data: task_info = await request.json();
+    // Get request data
+    const req_data = await request.json();
 
-    // Validate required fields
-    if (!req_data.title || !req_data.assign) {
+    const  email  = req_data.email;
+
+    // Validate required field
+    if (!email) {
       return NextResponse.json(
         {
-          message: "Title and assign fields are required",
+          message: "Email is required",
           status: 400,
         },
         { status: 400 }
       );
     }
 
-    
-
-    // Attempt to delete the task
-    await prisma.task.delete({
+    // Attempt to delete the user
+    await prisma.user.delete({
       where: {
-        title_assign: {
-          title: req_data.title,
-          assign: req_data.assign,
-        },
+        email: email,
       },
     });
 
     return NextResponse.json(
       {
-        message: "Task deleted successfully!",
+        message: "User deleted successfully!",
         status: 200,
       },
       
     );
   } catch (error: any) {
-    console.error("Delete task error:", error);
+    console.error("Delete user error:", error);
 
-    // Handle specific Prisma errors
+    // User was not found
     if (error.code === "P2025") {
       return NextResponse.json(
         {
-          message: "Task not found",
+          message: "User not found",
           status: 404,
         },
-        { status: 404 }
+     
+      );
+    }
+
+    // Foreign key constraint
+    if (error.code === "P2003") {
+      return NextResponse.json(
+        {
+          message:
+            "Cannot delete this user because they are associated with existing tasks.",
+          status: 409,
+        },
+     
       );
     }
 
     return NextResponse.json(
       {
-        message: "Failed to delete task",
+        message: "Failed to delete user",
         status: 500,
         error: error.message,
       },
-      
+     
     );
   }
 }

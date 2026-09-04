@@ -3,8 +3,7 @@
 import context from "@/context/context";
 import { task_info } from "@/interfaces";
 import { useContext } from "react";
-import { getStatusClass } from "./Tasks";
-import { getPriorityFlag } from "./Tasks";
+import { getPriorityFlag,getStatusClass } from "@/utils";
 const TaskCard = ({
   title,
   due_date,

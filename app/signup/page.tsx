@@ -11,6 +11,7 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("Student");
+  const [loading,setLoading] = useState(false)
   const {isAdmin,router} = useContext(context)
 
   useEffect(()=>{           
@@ -21,9 +22,9 @@ const Signup = () => {
 
   const handleSignup = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();    
-    
+    setLoading(true)
       const response = await axios.post(
-        `api/users/signup`,
+        `api/users/admin/signup`,
         {
           f_name: name,
           email: email,
@@ -42,9 +43,11 @@ const Signup = () => {
 
       if(data.status ===201){
         toast.success(data.message)
+        setLoading(false)
         router.push("/")
       }
       else{
+        setLoading(false)
         toast.error(data.message)
       }
       
@@ -134,24 +137,14 @@ const Signup = () => {
               </div>
 
               <button
+                disabled={loading}
                 type="submit"
                 className="w-full bg-indigo-500 text-white py-3 rounded-2xl font-semibold hover:bg-indigo-700 transition-all duration-200"
               >
-                SIGN UP
+                {loading?"Signing you up...":"SIGN UP"}
               </button>
             </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-gray-400">
-                Already have an account?{" "}
-                <Link
-                  href="/login"
-                  className="text-indigo-400 hover:text-indigo-300 font-medium"
-                >
-                  Sign In
-                </Link>
-              </p>
-            </div>
+            
           </div>
         </div>
       </div>

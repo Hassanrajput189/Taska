@@ -4,8 +4,9 @@
 import context from "@/context/context";
 import { useContext } from "react";
 
+
 const SideBar = () => {
-  const { router, isAdmin } = useContext(context);
+  const { router, isAdmin ,setModule} = useContext(context);
 
   return (
     <div className="px-10 py-8">
@@ -37,7 +38,7 @@ const SideBar = () => {
 
         <div
           onClick={() => {
-            router.push("/");
+            setModule("task")
           }}
           className="flex items-center gap-2 pl-2 pr-6 py-2 bg-[#F5F5F7] rounded-md w-full cursor-pointer"
         >
@@ -60,14 +61,14 @@ const SideBar = () => {
         {isAdmin && (
           <div
             onClick={() => {
-              router.push("/signup");
+              setModule("user")
             }}
             className="flex items-center gap-2 pl-2 pr-6 py-2 bg-[#F5F5F7] rounded-md w-full cursor-pointer"
           >
             <div className="w-6 h-6 shrink-0 flex items-center justify-center">
               <img
                 src="/moduleSVG.svg"
-                alt="Create Users"
+                alt="Users"
                 width={24}
                 height={24}
                 className="w-6 h-6 block"
@@ -75,7 +76,7 @@ const SideBar = () => {
             </div>
 
             <div className="whitespace-nowrap">
-              Create Users
+              Users
             </div>
           </div>
         )}
