@@ -1,30 +1,12 @@
 import { NextResponse } from "next/server";
 import { task_info } from "@/interfaces";
 import { prisma } from "@/lib/db";
-import { authenticateToken, requireAdmin } from "@/lib/middleware/auth";
+
 
 export async function POST(request: Request) {
   try {
-    // Authenticate user
-    const authResult = await authenticateToken(request);
-    if (authResult.error) {
-      return NextResponse.json(
-        { message: authResult.error, status: authResult.status },
-        { status: authResult.status }
-      );
-    }
-
-    // Verify admin role
-    const adminCheck = requireAdmin(authResult.user!);
-    if (adminCheck.error) {
-      return NextResponse.json(
-        { message: adminCheck.error, status: adminCheck.status },
-        { status: adminCheck.status }
-      );
-    }
 
     const req_data: task_info = await request.json();
-
 
     const existing = await prisma.task.findFirst({
       where: {
@@ -48,7 +30,7 @@ export async function POST(request: Request) {
         status: req_data.status!,
         assign: req_data.assign!,
         desc: req_data.desc!,
-        admin_email: req_data.email!,
+        admin_email: req_data.admin_email!,
       },
     });
 

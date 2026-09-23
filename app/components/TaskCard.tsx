@@ -12,8 +12,8 @@ const TaskCard = ({
   status,
   desc,
 }: task_info) => {
-  const { setShowTask} = useContext(context); 
-  const name = localStorage.getItem("name") 
+  const {userName, setShowTask} = useContext(context); 
+  
   return (
     <div className="fixed inset-0 z-50 bg-[#0000005C] flex items-center justify-center p-4">
       <div className="w-full sm:w-[90vw] md:w-[80vw] lg:w-[65vw] max-h-[90vh] bg-white rounded-xl p-5 sm:p-6 md:p-8 overflow-y-auto">
@@ -78,7 +78,7 @@ const TaskCard = ({
 
           <div className="min-w-0">
             <div className="text-[#656F7D] text-sm mb-2">Assigned by</div>
-            <div className="font-semibold ">{name}</div>
+            <div className="font-semibold ">{userName}</div>
           </div>
         </div>
 

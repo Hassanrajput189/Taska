@@ -14,21 +14,35 @@ const Navbar = () => {
     setShowSideBar,
     showSideBar,
     setAssignees,
+    setUsers,
+    setSelectedUser,
     setShowTask,
-    setShowEditCard,
+    setShowTaskEditCard,
+    setShowUserEditCard,
+    setModule,
     module,
+    setUserName,
+    setUserEmail,
+    setShowCreateUserCard,
   } = useContext(context);
   const reset = () => {
-    localStorage.removeItem("name");
-    localStorage.removeItem("email");
-    setTasks([]);
-    setSelectedTask([]);
-    setAssignees([]);
-    setShowTask(false);
-    setShowEditCard(false);
-    setShowSideBar(false);
-    setIsAdmin(false);
-  };
+  localStorage.removeItem("name");
+  localStorage.removeItem("email");
+  setUserName(null);
+  setUserEmail(null);
+  setTasks([]);
+  setUsers([]);
+  setAssignees([]);
+  setSelectedTask(null);
+  setSelectedUser(null);
+  setShowTask(false);
+  setShowTaskEditCard(false);
+  setShowUserEditCard(false);
+  setShowSideBar(false);
+  setIsAdmin(false);
+  setShowCreateUserCard(false);
+  setModule("task");
+};
 
   const handleLogout = async () => {
     setLoading(true);

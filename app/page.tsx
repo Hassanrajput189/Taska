@@ -7,27 +7,31 @@ import { useContext, useEffect } from "react";
 import context from "@/context/context";
 import axios from "axios";
 import toast from "react-hot-toast";
-import EditCard from "./components/EditCard";
+import EditCard from "./components/TaskEditCard";
+import UserEditCard from "./components/UserEditCard";
 import SideBar from "./components/SideBar";
+import CreateUserCard from "./components/CreateUserCard";
+
 
 export default function Main() {
   const {
+    setUserName,
+    userName,
+    setUserEmail,
+    userEmail,
     showTask,
-    showEditCard,
+    showTaskEditCard,
+    showUserEditCard,
     selectedTask,
+    selectedUser,
     router,
     showSideBar,
-    setIsAdmin,
+    showCreateUserCard,
+    
   } = useContext(context);
 
   const handleRedirect = async () => {
-    try {      
-      const email = localStorage.getItem("email");
-      if (!email) {        
-        router.push("/login");
-        return false;
-      }
-      
+    try {
       const response = await axios.get("/api/auth/verify", {
         headers: {
           "Content-Type": "application/json",
@@ -36,55 +40,41 @@ export default function Main() {
       });
       const data = response.data;
 
-      if (data.status === 401 || data.status === 500) {
-        toast.error(data.message || "Authentication failed");
+      if (response.status === 200) {
+        router.push("/");
+      } else if (response.status === 404) {
         router.push("/login");
-        return false;
+        toast.error(data.message);
       }
-
-      return true;
-    } catch (error) {      
+    } catch (error) {
       toast.error("Authentication failed");
       router.push("/login");
-      return false;
     }
   };
 
-  const handleRole = async () => {
-    const email = localStorage.getItem("email");
-      
-      const response = await axios.post(
-        "/api/auth/role",
-        {
-          email,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-      const data = response.data;
-
-      if (data.status === 200) {
-        setIsAdmin(data.isAdmin);        
-      }
-    
-  };
 
   useEffect(() => {
-    const authenticate = async () => {
-      const authenticated = await handleRedirect();
+    const email =
+      localStorage.getItem("email") === null
+        ? ""
+        : localStorage.getItem("email");
+    const name =
+      localStorage.getItem("name") === null ? "" : localStorage.getItem("name");
+    setUserName(name);
+    setUserEmail(email);
+    
+  }, [userName, userEmail]);
 
-      if (authenticated) {
-        await handleRole();
-      }
+  
+  useEffect(() => {
+    const authenticate = async () => {
+      await handleRedirect();
     };
 
     authenticate();
   }, []);
 
+  
   return (
     <div className="w-full">
       <div>
@@ -96,7 +86,7 @@ export default function Main() {
           )}
           <div className="w-full">
             <Navbar />
-            <Home />
+            <Home/>
           </div>
         </div>
       </div>
@@ -107,9 +97,19 @@ export default function Main() {
         </div>
       )}
 
-      {showEditCard && selectedTask && (
+      {showTaskEditCard && selectedTask && (
         <div className="fixed z-50 w-full top-0">
           <EditCard {...selectedTask} />
+        </div>
+      )}
+      {showCreateUserCard && (
+        <div className="fixed z-50 w-full top-0">
+          <CreateUserCard />
+        </div>
+      )}
+      {showUserEditCard && selectedUser && (
+        <div className="fixed z-50 w-full top-0">
+          <UserEditCard {...selectedUser} />
         </div>
       )}
     </div>

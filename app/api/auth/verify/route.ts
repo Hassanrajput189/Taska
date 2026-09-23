@@ -1,36 +1,42 @@
 import { NextResponse } from "next/server";
-import { authenticateToken } from "@/lib/middleware/auth";
+import { cookies } from "next/headers";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const authResult = await authenticateToken(request);
+    const cookieStore = await cookies();
 
-    if (authResult.error) {
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
       return NextResponse.json(
         {
-          message: authResult.error,
-          status: authResult.status,
+          success: false,
+          message: "Session Expired",
         },
-      
+        {
+          status: 404,
+        }
       );
     }
 
-    return NextResponse.json(
-      {
-        status: 200,
-        user: authResult.user,
-      },
-      
-    );
+    return NextResponse.json({
+      success: true,
+      token,
+    },
+    {status :200}
+  );
+
   } catch (error) {
-    console.error(error);
+    console.error("Token API error:", error);
 
     return NextResponse.json(
       {
-        message: "Something went wrong",
-        status: 500,
+        success: false,
+        message: "Failed to get token",
       },
-      
+      {
+        status: 500,
+      }
     );
   }
 }

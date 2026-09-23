@@ -7,7 +7,7 @@ import context from "@/context/context";
 import toast from "react-hot-toast";
 import { user_data } from "@/interfaces";
 import SideBar from "../components/SideBar";
-import { handleTaskFetch,handleAssigneeFetch } from "@/utils";
+import { handleTaskFetch } from "@/utils";
 
 const Create_Task = () => {
   const [title, setTitle] = useState("");
@@ -15,67 +15,50 @@ const Create_Task = () => {
   const [priority, setPriority] = useState("Low");
   const [status, setStatus] = useState("Pending");
   const [assign, setAssign] = useState("");
-  const [desc, setDesc] = useState("");  
-  const [loading,setLoading] = useState(false)
-  const [email,setEmail] = useState<string|null>("")
-  const {
-    assignees,
-    router,
-    showSideBar,        
+  const [desc, setDesc] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    setTasks,    
-  } = useContext(context);
+  const { assignees, router, showSideBar, setTasks, userEmail } =
+    useContext(context);
 
-  
-  useEffect(() => {
-  const storedEmail = localStorage.getItem("email");
-  setEmail(storedEmail);
-}, []);
-  const handleCreateTask = async (
-    e: React.SubmitEvent<HTMLFormElement>
-  ) => {  
-    e.preventDefault();  
-    setLoading(true)
-    
+  const handleCreateTask = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
 
-    if (!email) {
-      toast.error("User email not found");
-      setLoading(false)
+    if (!userEmail) {      
+      setLoading(false);
       return;
-    }
-
-    
-      const response = await axios.post(
-        "/api/task/admin/create",
-        {
-          title,
-          due_date: date,
-          priority,
-          status,
-          assign,
-          desc,
-          email,
+    }    
+    const response = await axios.post(
+      "/api/task/admin/create",
+      {
+        title,
+        due_date: date,
+        priority,
+        status,
+        assign,
+        desc,
+        admin_email:userEmail,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
+        withCredentials: true,
+      },
+    );
 
-      const data = response.data;
+    const data = response.data;
 
-      if (data.status === 201) {
-        handleTaskFetch(email,setTasks)        
-        toast.success(data.message);
-        setLoading(false)        
-        router.back();
-      } else {
-        setLoading(false)
-        toast.error(data.message);
-      }
-    
+    if (data.status === 201) {
+      handleTaskFetch(assign, setTasks);
+      toast.success(data.message);
+      setLoading(false);
+      router.back();
+    } else {
+      setLoading(false);
+      toast.error(data.message);
+    }
   };
 
   return (
@@ -92,7 +75,17 @@ const Create_Task = () => {
         <div className="w-full">
           <Navbar />
 
-          <div className="bg-[#F5F5F5] w-full min-h-screen flex justify-center items-center p-8">
+          <div className="bg-[#F5F5F5] w-full min-h-screen flex flex-col justify-center items-center p-8">
+            <div className="w-full max-w-6xl mb-3">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="text-sm text-gray-600 hover:text-gray-900 hover:underline transition-all duration-200"
+              >
+                ← Back
+              </button>
+            </div>
+
             <form
               onSubmit={handleCreateTask}
               className="flex flex-col justify-between rounded-xl p-8 w-full max-w-6xl max-h-4xl h-[90vh] bg-white"
@@ -181,7 +174,7 @@ const Create_Task = () => {
                     name="assignee"
                     value={assign}
                     onChange={(e) => {
-                      setAssign(e.target.value);                      
+                      setAssign(e.target.value);
                     }}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none bg-white"
                   >
@@ -216,11 +209,11 @@ const Create_Task = () => {
 
               <div className="flex justify-end">
                 <button
-                  type="submit"                  
-                  disabled={!email || loading}
+                  type="submit"
+                  disabled={!userEmail || loading}
                   className="bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-400 text-white text-sm font-medium px-10 py-3 rounded-lg transition-all duration-200"
                 >
-                  {loading?"Creating Task...":"Create Task"}
+                  {loading ? "Creating Task..." : "Create Task"}
                 </button>
               </div>
             </form>
@@ -232,4 +225,3 @@ const Create_Task = () => {
 };
 
 export default Create_Task;
-

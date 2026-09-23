@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { user_data } from "@/interfaces";
+import { admin_data } from "@/interfaces";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -16,22 +16,22 @@ export async function POST(request: Request) {
   }
 
   try {
-    const req_data: user_data = await request.json();
+    const req_data: admin_data = await request.json();
 
-    const user = await prisma.user.findUnique({
+    const admin = await prisma.admin.findUnique({
       where: {
         email: req_data.email,
       },
     });
 
-    if (!user) {
+    if (!admin) {
       return NextResponse.json({
         message: "Entered Email is invalid",
         status: 401,
       });
     }
 
-    const isMatched = await bcrypt.compare(req_data.password!, user.password!);
+    const isMatched = await bcrypt.compare(req_data.password!, admin.password!);
 
     if (!isMatched) {
       return NextResponse.json({
@@ -39,19 +39,14 @@ export async function POST(request: Request) {
         status: 401,
       });
     }    
-    if(user.is_active === false) {
-      return NextResponse.json({
-        message: "You account is temporarily disabled by the admin",
-        status: 401,
-      });
-    }
+    
 
     const response = NextResponse.json({
       message: "Login successful",
       status: 200,
       data: {
-        f_name: user.f_name,
-        email: user.email,
+        f_name: admin.f_name,
+        email: admin.email,
       },
     });
 
@@ -64,7 +59,7 @@ export async function POST(request: Request) {
     const newToken = jwt.sign(
       {
         email: req_data.email,
-        role: user.role,
+        role: admin.role,
       },
       JWT_SECRET,
       {

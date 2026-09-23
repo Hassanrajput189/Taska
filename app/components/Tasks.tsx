@@ -16,9 +16,10 @@ const Tasks = () => {
     tasks,    
     setShowTask,
     setSelectedTask,
-    setShowEditCard,    
+    setShowTaskEditCard,    
     isAdmin,
     setTasks,    
+    userEmail,
   } = useContext(context);
 
   const handleTaskDelete = async (
@@ -55,7 +56,7 @@ const Tasks = () => {
   
   return (
     <div className="border border-[#D7D7D7] rounded-lg px-4 bg-[#FFFFFF]">
-      <div className="grid grid-cols-1 sm:grid-cols-[2fr_1.2fr_1.2fr_1fr_1fr_0.8fr] items-center p-3 text-[#656F7D]">
+      <div className="grid grid-cols-1 sm:grid-cols-[2fr_1.2fr_2fr_1fr_1fr_0.8fr] items-center p-3 text-[#656F7D]">
         <div>Name</div>
         <div>Due_date</div>
         <div>Assignee</div>
@@ -79,10 +80,10 @@ const Tasks = () => {
                 status: task.status,
                 assign: task.assign,
                 desc: task.desc,
-                email: task.email,
+                admin_email: userEmail,
               });
             }}
-            className="grid grid-cols-1 sm:grid-cols-[2fr_1.2fr_1.2fr_1fr_1fr_0.8fr] items-center p-4 border-t border-[#D7D7D7] cursor-pointer gap-2"
+            className="grid grid-cols-1 sm:grid-cols-[2fr_1.2fr_2fr_1fr_1fr_0.8fr] items-center p-4 border-t border-[#D7D7D7] cursor-pointer gap-2"
           >
             <div className="text-[#546FFF] font-semibold">{task.title}</div>
             <div className="font-semibold">
@@ -150,9 +151,9 @@ const Tasks = () => {
                       status: task.status,
                       assign: task.assign,
                       desc: task.desc,
-                      email: task.email,
+                      email: userEmail,
                     });
-                    setShowEditCard(true);
+                    setShowTaskEditCard(true);
                   }}
                   className="cursor-pointer hover:scale-110 transition-all duration-200"
                 >
@@ -193,9 +194,9 @@ const Tasks = () => {
                     status: task.status,
                     assign: task.assign,
                     desc: task.desc,
-                    email: task.email,
+                    admin_email: userEmail,
                   });
-                  setShowEditCard(true);
+                  setShowTaskEditCard(true);
                 }}
                 className="cursor-pointer hover:scale-110 transition-all duration-200"
               >

@@ -1,38 +1,68 @@
-import context from "@/context/context"
-import { SetStateAction, useContext } from "react";
+import  {SetStateAction } from "react";
 import axios from "axios"
 import { task_info ,user_data} from "./interfaces";
 
 
-export const handleAssigneeFetch = async (
-  setAssignees: React.Dispatch<SetStateAction<user_data[] | null>>,      
-) => {        
-    const response = await axios.post("/api/task/admin/assignees");
+export const handleUserFetch = async (
+  email:string,
+  setUsers: React.Dispatch<SetStateAction<user_data[] | null>>,      
+) => {            
+    const response = await axios.post("/api/users/admin/fetch_users",
+      {
+        email
+      }
+    );
 
-    const data = response.data;
-    console.log("assignees from handle is ", data.data,data.status)
+    const data = response.data;    
+    
+    if (data.status === 200) {      
 
-    if (data.status === 200) {
-      setAssignees(data.data);
+      setUsers(data.data);      
       return data.data
     }
     return []
   };
 
 
+export const handleAssigneeFetch = async (
+  email:string,
+  setAssignees: React.Dispatch<SetStateAction<user_data[] | null>>,      
+) => {            
+    const response = await axios.post("/api/task/admin/assignees",
+      {
+        email
+      }
+    );
+
+    const data = response.data;    
+    
+    if (data.status === 200) {      
+
+      setAssignees(data.data);      
+          
+    }
+    else{
+      setAssignees([])
+    }
+    
+  };
 
 
-  export const handleAdminDateFetch = async (
-    assignees:user_data[],
+
+
+  export const handleAdminDataFetch = async (
+    admin_email:string,    
     setTasks: React.Dispatch<SetStateAction<task_info[] | null>>,    
   )=> {
     
     const response = await axios.post("/api/task/admin/read", {
-      assignees,
+      admin_email,      
     });
 
     const data = response.data;
+    
     if (data.status === 200) {
+    
       setTasks(data.tasks);      
       return data.tasks
     } else {

@@ -1,8 +1,17 @@
+export interface admin_data {
+  f_name?: string;
+  role?: string;
+  email?: string;
+  password?: string;    
+}
+
 export interface user_data {
   f_name?: string;
   role?: string;
   email?: string;
-  password?: string;
+  password?: string;  
+  is_active?:boolean;
+  admin_email:string;
 }
 
 export interface task_info {
@@ -12,18 +21,6 @@ export interface task_info {
   status?: string;
   assign?: string;
   desc?: string;
-  email?: string;
-}
-
-export interface AuthResult {
-  user?: { email: string; role?: string };
-  error?: string;
-  status: number;
-}
-
-export interface AuthorizationResult {
-  authorized?: boolean;
-  error?: string;
-  status: number;
+  admin_email?: string;
 }
 

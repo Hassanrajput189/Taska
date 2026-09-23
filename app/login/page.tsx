@@ -3,18 +3,28 @@ import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import context from "@/context/context";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 const Login = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");  
-  const [loading,setLoading] = useState(false)
-  const { router,setIsAdmin } = useContext(context);
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loginType, setLoginType] = useState<"individual" | "organization">(
+    "individual"
+  );
+  const { router, setIsAdmin } = useContext(context);
 
   const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
+
+    const endpoint =
+      loginType === "organization"
+        ? "/api/users/admin/login"
+        : "/api/users/login";
+
     const response = await axios.post(
-      `/api/users/login`,
+      endpoint,
       {
         email: email,
         password: password,
@@ -32,41 +42,24 @@ const Login = () => {
     if (data.status === 200) {
       localStorage.setItem("name", data.data.f_name);
       localStorage.setItem("email", data.data.email);
+      endpoint === "/api/users/admin/login"
+        ? setIsAdmin(true)
+        : setIsAdmin(false);
 
       toast.success(data["message"]);
-      setLoading(false)
+      setLoading(false);
       router.push("/");
     } else {
       toast.error(data["message"]);
-      setLoading(false)
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    async function checkAdmin() {
-      try {
-        const response = await axios.get("/api/auth/verify", {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        });
-        if (
-          response.data.status === 200 &&
-          response.data.user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL
-        ) {
-          setIsAdmin(true);
-        }
-      } catch {
-        setIsAdmin(false);
-      }
-    }
-    checkAdmin();
-  }, []);
+  
 
   return (
-    <div className="flex flex-col justify-center items-center p-4 bg-[url('/signup_login_bg.png')] bg-cover bg-center  h-screen w-full ">
-      <div className="w-1/2 md:w-1/3  flex justify-center items-center  bg-white py-4 ">
+    <div className="flex flex-col justify-center items-center p-4 bg-[url('/signup_login_bg.png')] bg-cover bg-center h-screen w-full">
+      <div className="w-1/2 md:w-1/3 flex justify-center items-center bg-white py-4">
         <div className="w-full max-w-md">
           <div className="flex justify-center items-center gap-2">
             <div>
@@ -83,15 +76,17 @@ const Login = () => {
                 />
               </svg>
             </div>
-            <div className="text-center ">
+
+            <div className="text-center">
               <h1 className="text-4xl font-semibold">Taska</h1>
             </div>
           </div>
 
-          <div className="rounded-2xl  p-8  ">
+          <div className="rounded-2xl p-8">
             <h2 className="text-2xl font-bold mb-6 text-left text-gray-500">
               Welcome to Taska!
             </h2>
+
             <form className="space-y-6" onSubmit={handleLogin}>
               <div>
                 <input
@@ -101,7 +96,7 @@ const Login = () => {
                   placeholder="Enter your email"
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 rounded-lg bg-gray-200  placeholder-gray-600  transition-all duration-200 "
+                  className="w-full px-4 py-3 rounded-lg bg-gray-200 placeholder-gray-600 transition-all duration-200"
                 />
               </div>
 
@@ -113,19 +108,57 @@ const Login = () => {
                   placeholder="Enter your password"
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 rounded-lg  bg-gray-200  placeholder-gray-600  transition-all duration-200"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-200 placeholder-gray-600 transition-all duration-200"
                 />
               </div>
 
+              {/* Login type toggle */}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setLoginType("individual")}
+                  className={`flex-1 py-1.5 text-sm rounded-xl font-semibold transition-all duration-200 ${
+                    loginType === "individual"
+                      ? "bg-indigo-500 text-white"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  Individual
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setLoginType("organization")}
+                  className={`flex-1 py-1.5 text-sm rounded-xl font-semibold transition-all duration-200 ${
+                    loginType === "organization"
+                      ? "bg-indigo-500 text-white"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  Organization
+                </button>
+              </div>
+
               <button
-                disabled = {loading}
+                disabled={loading}
                 type="submit"
                 className="w-full bg-indigo-500 text-white py-3 rounded-2xl font-semibold hover:bg-indigo-700 transition-all duration-200"
               >
-                {loading?"Signing you in...":"SIGN IN"}
+                {loading ? "Signing you in..." : "SIGN IN"}
               </button>
-            </form>            
-          </div>
+            </form>
+
+            {/* Signup Link */}
+            <p className="text-center mt-5 text-gray-500">
+              Don't have an account?{" "}
+              <Link
+                href="/signup"
+                className="text-indigo-500 font-semibold hover:text-indigo-700 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </p>
+          </div>          
         </div>
       </div>
     </div>

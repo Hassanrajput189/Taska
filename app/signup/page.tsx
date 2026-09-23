@@ -1,35 +1,55 @@
 "use client";
-import { useEffect, useState,useContext } from "react";
+
+import { useState, useContext } from "react";
 import axios from "axios";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import context from "@/context/context";
 
-
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("Student");
-  const [loading,setLoading] = useState(false)
-  const {isAdmin,router} = useContext(context)
 
-  useEffect(()=>{           
-    if(!isAdmin){
-      router.push("/login")
+  const [role, setRole] = useState("");
+  const [other, setOther] = useState("");
+
+  const [showOtherInput, setShowOtherInput] = useState(false);
+
+  // OTP states
+  const [OTP, setOTP] = useState("");
+  const [showOTPInput, setShowOTPInput] = useState(false);
+
+  const [OTPloading, setOTPLoading] = useState(false);
+  const [signupLoading,setSignupLoading] = useState(false);
+  const { router } = useContext(context);
+
+  const roles = [
+    "Manager",
+    "Doctor",
+    "Engineer",
+    "Teacher",
+    "Consultant",
+    "Other",
+  ];
+
+  
+  // SEND OTP
+  
+  const handleEmailSend = async () => {
+    if (!email) {
+      toast.error("Please enter your email");
+      return;
     }
-  },[])
 
-  const handleSignup = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();    
-    setLoading(true)
+    try {
+      setOTPLoading(true);
+
       const response = await axios.post(
-        `api/users/admin/signup`,
+        `/api/auth/sendEmail`,
         {
           f_name: name,
           email: email,
-          password: password,
-          role: role,
         },
         {
           headers: {
@@ -39,25 +59,90 @@ const Signup = () => {
         },
       );
 
-      const data = response.data;        
+      const data = response.data;
 
-      if(data.status ===201){
-        toast.success(data.message)
-        setLoading(false)
-        router.push("/")
+      if (data.status === 200) {
+        setShowOTPInput(true);
+
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
       }
-      else{
-        setLoading(false)
-        toast.error(data.message)
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      );
+    } finally {
+      setOTPLoading(false);
+    }
+  };
+
+  
+  // SIGNUP FORM
+  
+  const handleSignup = async () => {
+    // Prevent signup if Other is selected but no custom role is entered
+    if (role === "Other" && !other.trim()) {
+      toast.error("Please enter your role");
+      return;
+    }
+    if (!OTP.trim()) {
+      toast.error("Please enter the OTP");
+      return;
+    }
+    if (!password.trim()) {
+      toast.error("Please enter your password");
+      return;
+    }
+
+    setSignupLoading(true);
+
+    try {
+      const response = await axios.post(
+        `/api/users/admin/signup`,
+        {
+          f_name: name,
+          email: email,
+          password: password,
+          role: role === "Other" ? other.trim() : role,
+          otp: OTP,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        },
+      );
+
+      const data = response.data;
+
+      if (data.status === 201) {
+        toast.success(data.message);
+
+        setShowOTPInput(false);
+        setOTP("");
+
+        router.push("/login");
+      } else {
+        toast.error(data.message);
       }
-      
-    
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      );
+    } finally {
+      setSignupLoading(false);
+    }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center p-4 bg-[url('/signup_login_bg.png')] bg-cover bg-center  h-screen w-full">
-      <div className="w-1/2 md:w-1/3 flex justify-center items-center  bg-white py-4">
+    <div className="flex flex-col justify-center items-center p-4 bg-[url('/signup_login_bg.png')] bg-cover bg-center h-screen w-full">
+      <div className="w-1/2 md:w-1/3 flex justify-center items-center bg-white py-4">
         <div className="w-full max-w-md">
+          {/* Logo */}
           <div className="flex justify-center items-center gap-2">
             <div>
               <svg
@@ -73,45 +158,102 @@ const Signup = () => {
                 />
               </svg>
             </div>
-            <div className="text-center ">
+
+            <div className="text-center">
               <h1 className="text-4xl font-semibold">Taska</h1>
             </div>
           </div>
 
-          <div className="rounded-2xl  p-8  ">
+          {/* Signup Form */}
+          <div className="rounded-2xl p-8">
             <h2 className="text-2xl font-bold mb-6 text-left text-gray-500">
               Welcome to Taska!
             </h2>
 
-            <form className="space-y-6" onSubmit={handleSignup}>
+            <form
+              className="space-y-6"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleEmailSend();
+              }}
+            >
+              {/* Name */}
               <div>
                 <input
                   name="name"
                   type="text"
                   placeholder="Full Name"
+                  value={name}
                   required
-                  className="w-full px-4 py-3 rounded-lg bg-gray-200  placeholder-gray-600  transition-all duration-200 "
+                  className="w-full px-4 py-3 rounded-lg bg-gray-200 placeholder-gray-600 transition-all duration-200"
                   onChange={(e) => {
                     setName(e.target.value);
                   }}
                 />
               </div>
+
+              {/* Role */}
               <div>
-                <label htmlFor="role">Choose a role:</label>
+                <label htmlFor="role" className="block mb-2 text-gray-600">
+                  Choose a role:
+                </label>
+
                 <select
+                  id="role"
                   name="role"
-                  className="w-full px-4 py-3 rounded-lg  bg-gray-200  placeholder-gray-600  transition-all duration-200"
+                  value={role}
+                  className="w-full px-4 py-3 rounded-lg bg-gray-200 text-gray-700 transition-all duration-200"
                   onChange={(e) => {
-                    setRole(e.target.value);
+                    const selectedRole = e.target.value;
+
+                    setRole(selectedRole);
+
+                    setShowOtherInput(selectedRole === "Other");
+
+                    if (selectedRole !== "Other") {
+                      setOther("");
+                    }
                   }}
                 >
-                  <option value="Admin">Admin</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Student">Student</option>
-                  <option value="Doctor">Doctor</option>
-                  <option value="Engineer">Engineer</option>
+                  {roles.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
                 </select>
               </div>
+
+              {/* Custom Role */}
+              {showOtherInput && (
+                <div>
+                  <input
+                    type="text"
+                    value={other}
+                    placeholder="Enter your role"
+                    required
+                    className="w-full px-4 py-3 rounded-lg bg-gray-200 placeholder-gray-600 transition-all duration-200"
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      const exists = roles.some(
+                        (role) =>
+                          role.toLocaleLowerCase() ===
+                          value.trim().toLocaleLowerCase(),
+                      );
+
+                      if (exists) {
+                        toast.error(
+                          "Cannot set value that is already in specified roles",
+                        );
+                      } else {
+                        setOther(value);
+                      }
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Email */}
               <div>
                 <input
                   id="email"
@@ -120,34 +262,106 @@ const Signup = () => {
                   placeholder="Enter your email"
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 rounded-lg bg-gray-200  placeholder-gray-600  transition-all duration-200 "
+                  className="w-full px-4 py-3 rounded-lg bg-gray-200 placeholder-gray-600 transition-all duration-200"
                 />
               </div>
 
-              <div>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  placeholder="Enter your password"
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 rounded-lg  bg-gray-200  placeholder-gray-600  transition-all duration-200"
-                />
-              </div>
-
-              <button
-                disabled={loading}
-                type="submit"
-                className="w-full bg-indigo-500 text-white py-3 rounded-2xl font-semibold hover:bg-indigo-700 transition-all duration-200"
-              >
-                {loading?"Signing you up...":"SIGN UP"}
-              </button>
+              {/* Send OTP Button - only shown once an email has been entered */}
+              {email.trim() && (
+                <button                  
+                  disabled={OTPloading}
+                  type="submit"
+                  className="w-full bg-indigo-500 text-white py-3 rounded-2xl font-semibold hover:bg-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {OTPloading ? "Sending OTP..." : "SEND OTP"}
+                </button>
+              )}
             </form>
-            
+
+            {/* Login Link */}
+            <p className="text-center mt-5 text-gray-500">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="text-indigo-500 font-semibold hover:text-indigo-700 transition-colors"
+              >
+                Sign In
+              </Link>
+            </p>
           </div>
         </div>
       </div>
+
+      {/* OTP POPUP */}
+
+      {showOTPInput && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 ">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <div
+              onClick={() => {
+                setShowOTPInput(false);
+              }}
+              className="cursor-pointer flex justify-end text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M14 1.40835L12.59 0L7 5.58348L1.41 0L0 1.40835L5.59 6.99183L0 12.5753L1.41 13.9837L7 8.40019L12.59 13.9837L14 12.5753L8.41 6.99183L14 1.40835Z"
+                  fill="#4C4E64"
+                  fillOpacity="0.54"
+                />
+              </svg>
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-700 text-center">
+              Verify Your Email
+            </h2>
+
+            <p className="text-sm text-gray-500 text-center mt-2 mb-5">
+              Enter the OTP sent to
+              <br />
+              <span className="font-semibold text-gray-700">{email}</span>
+            </p>
+
+            <input
+              type="text"
+              value={OTP}
+              placeholder="Enter OTP"
+              maxLength={6}
+              autoFocus
+              className="w-full px-4 py-3 rounded-lg bg-gray-200 placeholder-gray-600 text-center tracking-widest text-lg"
+              onChange={(e) => {
+                setOTP(e.target.value);
+              }}
+            />
+
+            {/* Password */}
+            <input
+              id="password"
+              type="password"
+              value={password}
+              placeholder="Enter your password"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full mt-4 px-4 py-3 rounded-lg bg-gray-200 placeholder-gray-600 transition-all duration-200"
+            />
+
+            <button
+              type="button"
+              onClick={handleSignup}
+              disabled={signupLoading}
+              className="w-full mt-4 bg-indigo-500 text-white py-3 rounded-2xl font-semibold hover:bg-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {signupLoading ? "Signing up..." : "Signup"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

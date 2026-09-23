@@ -10,12 +10,16 @@ const ContextProvider = ({ children }: { children: React.ReactNode }) => {
 const [userName,setUserName] = useState<string|null>(null)
 const [userEmail,setUserEmail] = useState<string|null>(null)
 const [tasks, setTasks] = useState<task_info[]|null>([]);
+const [users,setUsers] = useState<user_data[]|null>([]);
 const [assignees,setAssignees] = useState<user_data[]|null>([])
 const [selectedTask, setSelectedTask] = useState<task_info | null>(null);
+const [selectedUser, setSelectedUser] = useState<user_data | null>(null);
 const [showTask,setShowTask] = useState<boolean|null>(false)
-const [showEditCard, setShowEditCard] = useState<boolean|null>(false);
+const [showTaskEditCard, setShowTaskEditCard] = useState<boolean|null>(false);
+const [showUserEditCard, setShowUserEditCard] = useState<boolean|null>(false);
 const [showSideBar, setShowSideBar] = useState<boolean|null>(false);
 const [isAdmin,setIsAdmin] = useState<boolean|null>(false)
+const [showCreateUserCard,setShowCreateUserCard] = useState(false)
 const [module,setModule] = useState<string|null>("task")
 const router = useRouter()
 
@@ -27,23 +31,31 @@ const router = useRouter()
         userName,
         setUserName,
         userEmail,
-        setUserEmail,
+        setUserEmail,        
         tasks,        
-        setTasks,        
+        setTasks,           
+        users,
+        setUsers,       
+        selectedUser,    
+        setSelectedUser,
         assignees,
-        setAssignees,
+        setAssignees,        
         showTask,
         setShowTask,
         selectedTask,
         setSelectedTask,         
-        showEditCard,
-        setShowEditCard,
+        showTaskEditCard,
+        setShowTaskEditCard,
+        showUserEditCard,
+        setShowUserEditCard,
         showSideBar,
         setShowSideBar,        
         isAdmin,
         setIsAdmin,                
         module,
         setModule,      
+        showCreateUserCard,
+        setShowCreateUserCard,
         router,
       }}
     >

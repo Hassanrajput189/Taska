@@ -7,12 +7,21 @@ datasource db {
   provider = "mysql"
 }
 
+model Admin {
+  email    String  @id
+  f_name   String?
+  role     String? @map("_role")
+  password String? @map("_password")    
+
+  @@map("admin_table")
+}
 model User {
   email    String  @id
   f_name   String?
   role     String? @map("_role")
   password String? @map("_password")
-
+  admin_email String 
+  is_active Boolean @default(true)
   @@map("user_table")
 }
 
@@ -27,3 +36,12 @@ model Task {
   @@id([title, assign])
   @@map("task_table")
 }
+
+model EmailVerification {
+  email     String   @id
+  otp       String
+  expiresAt DateTime
+
+  @@map("email_verification_table")
+}
+

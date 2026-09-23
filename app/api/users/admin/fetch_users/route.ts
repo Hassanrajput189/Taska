@@ -6,27 +6,27 @@ export async function POST(request: Request) {
   try {
     const req_data: admin_data = await request.json();
 
-    
+    console.log("User request:", req_data);
 
-    const assignees = await prisma.user.findMany({
+    const users = await prisma.user.findMany({
       where: {
-        admin_email: req_data.email,
+        admin_email: req_data.email,        
+      },
+      select: {
+        f_name: true,
+        email: true,
+        role: true,
         is_active: true,
       },
-      select: {        
-        email: true,                
-      },
     });
-    console.log("Assignees:", assignees);
-
     
-
+    
     return NextResponse.json({
       status: 200,
-      data: assignees,
+      data: users,
     });
   } catch (error) {
-    console.error("ASSIGNEE API ERROR:", error);
+    console.error("USER API ERROR:", error);
 
     return NextResponse.json(
       {

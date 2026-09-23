@@ -1,34 +1,18 @@
 import { NextResponse } from "next/server";
-import { user_data } from "@/interfaces";
+import { admin_data } from "@/interfaces";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcrypt";
-import { authenticateToken, requireAdmin } from "@/lib/middleware/auth";
 
 export async function POST(request: Request) {
   try {
-    // Authenticate user
-    const authResult = await authenticateToken(request);
-    if (authResult.error) {
-      return NextResponse.json(
-        { message: authResult.error, status: authResult.status },
-        { status: authResult.status }
-      );
-    }
+    
+    const req_data= await request.json();
+    const {f_name,email,password,role} :admin_data = req_data
+    
 
-    // Verify admin role
-    const adminCheck = requireAdmin(authResult.user!);
-    if (adminCheck.error) {
-      return NextResponse.json(
-        { message: adminCheck.error, status: adminCheck.status },
-        { status: adminCheck.status }
-      );
-    }
-
-    const req_data: user_data = await request.json();
-
-    const existing = await prisma.user.findUnique({
+    const existing = await prisma.admin.findUnique({
       where: {
-        email: req_data.email,
+        email: email,
       },
     });
 
@@ -36,13 +20,38 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "User already exists", status: 409 });
     }
 
-    const hashedPassword = await bcrypt.hash(req_data.password!, 10);
+    const verification = await prisma.emailVerification.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    if (!verification) {
+      return NextResponse.json({ message: "Invalid OTP", status: 400 });
+    }
+    
 
-    await prisma.user.create({
+    const isOTPValid =
+      await bcrypt.compare(req_data.otp!, verification.otp);
+
+    if(isOTPValid && new Date() > verification.expiresAt){
+      return NextResponse.json({
+        status: 400,
+        message: "OTP has expired. Please request a new OTP.",
+      });
+    }
+        
+    if (!isOTPValid) {
+      return NextResponse.json({ message: "Invalid OTP", status: 400 });
+    }
+    
+
+    const hashedPassword = await bcrypt.hash(password!, 10);
+
+    await prisma.admin.create({
       data: {
-        email: req_data.email!,
-        f_name: req_data.f_name,
-        role: req_data.role,
+        email: email!,
+        f_name: f_name,
+        role: role,
         password: hashedPassword,
       },
     });

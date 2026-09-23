@@ -6,7 +6,7 @@ import axios from "axios";
 import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 
-const EditCard = ({
+const TaskEditCard = ({
   title,
   due_date,
   assign,
@@ -14,29 +14,29 @@ const EditCard = ({
   status,
   desc,
 }: task_info) => {
-  const { setShowEditCard, setTasks, assignees, isAdmin} = useContext(context);
+  const { setShowTaskEditCard, setTasks, assignees, isAdmin} = useContext(context);
 
   const [newDate, setNewDate] = useState(due_date);
   const [newAssign, setNewAssign] = useState(assign);
   const [newPriority, setNewPriority] = useState(priority);
   const [newStatus, setNewStatus] = useState(status);
-  const [newDesc, setNewDesc] = useState(desc);  
-  const email = localStorage.getItem("email");
-  const name = localStorage.getItem("name");  
+  const [newDesc, setNewDesc] = useState(desc);    
   const [loading,setLoading] = useState(false)
-
+  const {userName,userEmail} = useContext(context)
   const handleUpdate = async () => {
     const updatedTask = {
-      title: title,
-      email: email,
+      title: title,      
       due_date: newDate,
       priority: newPriority,
       status: newStatus,
       assign: newAssign,
       desc: newDesc,
+      admin_email: userEmail,
     };
     setLoading(true)
-    const response = await axios.patch("/api/task/update", updatedTask);
+    const response = await axios.patch("/api/task/update", 
+      updatedTask,      
+    );
 
     const data = response.data;    
         
@@ -58,7 +58,7 @@ const EditCard = ({
       
       toast.success(data.message);
       setLoading(false)
-      setShowEditCard(false);
+      setShowTaskEditCard(false);
     } else if (data.status === 201) {
       setLoading(false)
       toast.success(data.message);
@@ -76,7 +76,7 @@ const EditCard = ({
 
           <svg
             className="text-gray-500 hover:text-black text-xl font-semibold cursor-pointer"
-            onClick={() => setShowEditCard(false)}
+            onClick={() => setShowTaskEditCard(false)}
             width="14"
             height="14"
             viewBox="0 0 14 14"
@@ -168,7 +168,7 @@ const EditCard = ({
             <div className="flex flex-col gap-2">
               <div className="text-[#656F7D]">Assigned by</div>
 
-              <div className="font-semibold text-gray-700 py-3">{name}</div>
+              <div className="font-semibold text-gray-700 py-3">{userName}</div>
             </div>
           </div>
 
@@ -199,4 +199,4 @@ const EditCard = ({
   );
 };
 
-export default EditCard;
+export default TaskEditCard;

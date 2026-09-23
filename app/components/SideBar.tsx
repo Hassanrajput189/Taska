@@ -38,6 +38,7 @@ const SideBar = () => {
 
         <div
           onClick={() => {
+            router.push("/")
             setModule("task")
           }}
           className="flex items-center gap-2 pl-2 pr-6 py-2 bg-[#F5F5F7] rounded-md w-full cursor-pointer"
@@ -61,6 +62,7 @@ const SideBar = () => {
         {isAdmin && (
           <div
             onClick={() => {
+              router.push("/")
               setModule("user")
             }}
             className="flex items-center gap-2 pl-2 pr-6 py-2 bg-[#F5F5F7] rounded-md w-full cursor-pointer"
