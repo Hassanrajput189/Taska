@@ -77,7 +77,7 @@ const UserEditCard = ({ f_name, email, role }: user_data) => {
               fill="#4C4E64"
               fillOpacity="0.54"
             />
-          </svg>user.email === email
+          </svg>
              
         </div>
 
