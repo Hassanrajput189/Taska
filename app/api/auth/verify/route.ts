@@ -12,18 +12,18 @@ export async function GET() {
         {
           success: false,
           message: "Session Expired",
+          status :404
         },
-        {
-          status: 404,
-        }
+        
       );
     }
 
     return NextResponse.json({
       success: true,
       token,
+      status : 200
     },
-    {status :200}
+    
   );
 
   } catch (error) {
@@ -33,10 +33,9 @@ export async function GET() {
       {
         success: false,
         message: "Failed to get token",
+        status : 500
       },
-      {
-        status: 500,
-      }
+      
     );
   }
 }

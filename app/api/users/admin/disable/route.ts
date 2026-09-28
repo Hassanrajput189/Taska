@@ -4,10 +4,12 @@ import { prisma } from "@/lib/db";
 
 export async function PATCH(request: Request) {
   try {
+    
     const req_data: user_data = await request.json();
+    console.log("req_data for disable is ",req_data)
 
     // Validate email
-    if (!req_data.email) {
+    if (!req_data.email || !req_data.admin_email) {
       return NextResponse.json(
         {
           message: "Email is required",
@@ -23,7 +25,10 @@ export async function PATCH(request: Request) {
     // Check if target user exists
     const existing = await prisma.user.findUnique({
       where: {
-        email: req_data.email,
+        email_admin_email: {
+          email: req_data.email!,
+          admin_email: req_data.admin_email!,
+        },
       },
     });
 
@@ -49,7 +54,10 @@ export async function PATCH(request: Request) {
     // Update user status
     const updatedUser = await prisma.user.update({
       where: {
-        email: req_data.email,
+        email_admin_email: {
+          email: req_data.email!,
+          admin_email: req_data.admin_email!,
+        },
       },
       data: {
         is_active: updated_is_active,

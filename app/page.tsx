@@ -11,13 +11,15 @@ import EditCard from "./components/TaskEditCard";
 import UserEditCard from "./components/UserEditCard";
 import SideBar from "./components/SideBar";
 import CreateUserCard from "./components/CreateUserCard";
-
+import AssignTaskCard from "./components/AssignTaskCard";
+import UserPermissionCard from "./components/UserPermissionCard";
 
 export default function Main() {
   const {
     setUserName,
     userName,
     setUserEmail,
+    setAdminEmail,
     userEmail,
     showTask,
     showTaskEditCard,
@@ -26,8 +28,10 @@ export default function Main() {
     selectedUser,
     router,
     showSideBar,
+    setShowSideBar,
     showCreateUserCard,
-    
+    showAssignTaskCard,
+    showUserPermissionCard,
   } = useContext(context);
 
   const handleRedirect = async () => {
@@ -40,9 +44,9 @@ export default function Main() {
       });
       const data = response.data;
 
-      if (response.status === 200) {
+      if (data.status === 200) {
         router.push("/");
-      } else if (response.status === 404) {
+      } else if (data.status === 404) {
         router.push("/login");
         toast.error(data.message);
       }
@@ -52,7 +56,6 @@ export default function Main() {
     }
   };
 
-
   useEffect(() => {
     const email =
       localStorage.getItem("email") === null
@@ -60,12 +63,12 @@ export default function Main() {
         : localStorage.getItem("email");
     const name =
       localStorage.getItem("name") === null ? "" : localStorage.getItem("name");
+    const adminEmail = localStorage.getItem("admin_email") ?? "";
     setUserName(name);
     setUserEmail(email);
-    
+    setAdminEmail(adminEmail);
   }, [userName, userEmail]);
 
-  
   useEffect(() => {
     const authenticate = async () => {
       await handleRedirect();
@@ -74,19 +77,23 @@ export default function Main() {
     authenticate();
   }, []);
 
-  
   return (
     <div className="w-full">
       <div>
         <div className="flex">
           {showSideBar && (
-            <div>
+            <>
+              {/* Backdrop, mobile only — clicking it closes the popup sidebar */}
+              <div
+                className="md:hidden fixed inset-0 z-40 bg-[#0000005C]"
+                onClick={() => setShowSideBar(false)}
+              />
               <SideBar />
-            </div>
+            </>
           )}
           <div className="w-full">
             <Navbar />
-            <Home/>
+            <Home />
           </div>
         </div>
       </div>
@@ -94,6 +101,11 @@ export default function Main() {
       {showTask && selectedTask && (
         <div className="fixed z-50 w-full top-0">
           <TaskCard {...selectedTask} />
+        </div>
+      )}
+      {showAssignTaskCard && selectedTask && (
+        <div className="fixed z-50 w-full top-0">
+          <AssignTaskCard {...selectedTask} />
         </div>
       )}
 
@@ -110,6 +122,17 @@ export default function Main() {
       {showUserEditCard && selectedUser && (
         <div className="fixed z-50 w-full top-0">
           <UserEditCard {...selectedUser} />
+        </div>
+      )}
+      {showUserPermissionCard && selectedUser && (
+        <div className="fixed z-50 w-full top-0">
+      
+          <UserPermissionCard
+            email={selectedUser.email}
+            admin_email={selectedUser.admin_email}
+            title={selectedTask.title}
+            assign={selectedTask.assign}
+          />
         </div>
       )}
     </div>

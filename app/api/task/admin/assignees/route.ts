@@ -6,8 +6,6 @@ export async function POST(request: Request) {
   try {
     const req_data: admin_data = await request.json();
 
-    
-
     const assignees = await prisma.user.findMany({
       where: {
         admin_email: req_data.email,

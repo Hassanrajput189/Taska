@@ -5,7 +5,6 @@ import context from "@/context/context";
 import { useContext, useState ,useEffect} from "react";
 import axios from "axios";
 import Users from "./Users";
-import toast from "react-hot-toast";
 import { user_data } from "@/interfaces";
 import {
   handleTaskFetch,
@@ -26,7 +25,8 @@ export default function Home() {
     assignees,
     setIsAdmin,
     userEmail,
-    setShowSideBar,
+    adminEmail,
+    
    } =
     useContext(context);
   const [allTasks, setAllTasks] = useState([]);
@@ -71,7 +71,8 @@ export default function Home() {
     setTimer(
       setTimeout(async () => {
         const response = await axios.post(`/api/task/search?query=${value}`, {
-          email: userEmail,
+          assign: isAdmin ? undefined : userEmail,
+          admin_email: isAdmin ? userEmail : adminEmail,
         });
         const data = response.data;
         if (data.status === 404) {
@@ -129,14 +130,14 @@ export default function Home() {
         
         setAllUsers(value_users);
       } else {
-        const value_tasks = await handleTaskFetch(userEmail, setTasks);
+        const value_tasks = await handleTaskFetch(userEmail, setTasks, adminEmail);
         
         setAllTasks(value_tasks);
       }
     };
 
     fetchData();
-  }, [isAdmin, router, userEmail]);
+  }, [isAdmin, router, userEmail, adminEmail]);
 
   useEffect(() => {
     if (!userEmail) return;
@@ -147,7 +148,7 @@ export default function Home() {
       
         const value_tasks = await handleAdminDataFetch(userEmail, setTasks);
       
-
+        setTasks(value_tasks)
         setAllTasks(value_tasks);
       }
     };

@@ -11,7 +11,12 @@ export interface user_data {
   email?: string;
   password?: string;  
   is_active?:boolean;
-  admin_email:string;
+  admin_email?:string;
+}
+
+export interface admin_option {
+  admin_email: string;
+  admin_name?: string | null;
 }
 
 export interface task_info {
@@ -22,5 +27,11 @@ export interface task_info {
   assign?: string;
   desc?: string;
   admin_email?: string;
+}
+export interface UserPermissionProps {
+  email?: string;
+  admin_email?: string;
+  title?: string;
+  assign?: string;
 }
 

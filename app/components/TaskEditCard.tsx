@@ -13,57 +13,60 @@ const TaskEditCard = ({
   priority,
   status,
   desc,
+  admin_email,
 }: task_info) => {
-  const { setShowTaskEditCard, setTasks, assignees, isAdmin} = useContext(context);
+  const { setShowTaskEditCard, setTasks, assignees, isAdmin } =
+    useContext(context);
 
   const [newDate, setNewDate] = useState(due_date);
   const [newAssign, setNewAssign] = useState(assign);
   const [newPriority, setNewPriority] = useState(priority);
   const [newStatus, setNewStatus] = useState(status);
-  const [newDesc, setNewDesc] = useState(desc);    
-  const [loading,setLoading] = useState(false)
-  const {userName,userEmail} = useContext(context)
+  const [newDesc, setNewDesc] = useState(desc);
+  const [loading, setLoading] = useState(false);
+  const { userName } = useContext(context);
   const handleUpdate = async () => {
     const updatedTask = {
-      title: title,      
+      title: title,
       due_date: newDate,
       priority: newPriority,
       status: newStatus,
+      prevAssign: assign ?? "",
       assign: newAssign,
       desc: newDesc,
-      admin_email: userEmail,
+      admin_email: admin_email,
     };
-    setLoading(true)
-    const response = await axios.patch("/api/task/update", 
-      updatedTask,      
-    );
+    setLoading(true);
+    const response = await axios.patch("/api/task/update", {
+      updatedTask,
+    });
 
-    const data = response.data;    
-        
-    if (data.status === 200) { 
-          
-      setTasks((prev: task_info[]) =>        
-        prev.map((task) =>          
-          task.title === title && task.assign === newAssign      
+    const data = response.data;
+
+    if (data.status === 200) {
+      setTasks((prev: task_info[]) =>
+        prev.map((task) =>
+          task.title === title && (task.assign ?? "") === (assign ?? "")
             ? {
                 ...task,
                 due_date: newDate,
                 priority: newPriority,
-                status: newStatus,                
+                status: newStatus,
+                assign: newAssign,
                 desc: newDesc,
               }
             : task,
         ),
       );
-      
+
       toast.success(data.message);
-      setLoading(false)
+      setLoading(false);
       setShowTaskEditCard(false);
     } else if (data.status === 201) {
-      setLoading(false)
+      setLoading(false);
       toast.success(data.message);
     } else {
-      setLoading(false)
+      setLoading(false);
       toast.error(data.message);
     }
   };
@@ -190,7 +193,7 @@ const TaskEditCard = ({
               onClick={handleUpdate}
               className="w-full sm:w-auto px-5 py-2 rounded-lg bg-[#546FFF] text-white hover:bg-blue-600 transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              {loading?"Updating":"Save Changes"}
+              {loading ? "Updating" : "Save Changes"}
             </button>
           </div>
         </div>

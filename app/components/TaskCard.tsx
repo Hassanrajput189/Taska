@@ -46,7 +46,7 @@ const TaskCard = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-x-4 gap-y-6 mt-8">
+        <div className="grid grid-cols-2 md:grid-cols-[1fr_2fr_1fr_1fr_2fr] gap-x-4 gap-y-6 mt-8">
           <div className="min-w-0">
             <div className="text-[#656F7D] text-sm mb-2">Due Date</div>
             <div className="font-semibold ">{due_date}</div>
@@ -54,7 +54,7 @@ const TaskCard = ({
 
           <div className="min-w-0">
             <div className="text-[#656F7D] text-sm mb-2">Assignee</div>
-            <div className="font-semibold ">{assign}</div>
+            <div className="font-semibold ">{assign?assign:"No Assignee Availabe"}</div>
           </div>
 
           <div className="min-w-0">

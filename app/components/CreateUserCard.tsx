@@ -1,20 +1,14 @@
 "use client";
 
 import context from "@/context/context";
+import { handleUserFetch } from "@/utils";
 import axios from "axios";
 import { useContext, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 const CreateUserCard = () => {
-  const { setShowCreateUserCard, router } = useContext(context);
-  const roles = [
-    "Manager",
-    "Doctor",
-    "Engineer",
-    "Teacher",
-    "Consultant",
-    "Other",
-  ];
+  const { setShowCreateUserCard, router,roles } = useContext(context);
+  
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +16,7 @@ const CreateUserCard = () => {
   const [other, setOther] = useState("");
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { userEmail } = useContext(context);
+  const { userEmail,setUsers } = useContext(context);
 
   const handleCreateUser = async () => {
     // Use the custom-entered role when "Other" was selected
@@ -37,7 +31,7 @@ const CreateUserCard = () => {
 
     try {
       const response = await axios.post(
-        "/api/users/create",
+        "/api/users/admin/create",
         {
           f_name: name!,
           email: email!,
@@ -57,12 +51,11 @@ const CreateUserCard = () => {
 
       if (data.status === 201) {
         toast.success(data.message);
+        await handleUserFetch(userEmail,setUsers)
         setLoading(false);
 
         setShowCreateUserCard(false);
-
-        // Optional: refresh the page/list of users
-        router.refresh();
+              
       } else {
         setLoading(false);
         toast.error(data.message);
@@ -148,7 +141,7 @@ const CreateUserCard = () => {
                       
                     }}
                   >
-                    {roles.map((role) => (
+                    {roles.map((role:string) => (
                       <option key={role} value={role}>
                         {role}
                       </option>
@@ -168,7 +161,7 @@ const CreateUserCard = () => {
                         const value = e.target.value;
 
                         const exists = roles.some(
-                          (role) =>
+                          (role:string) =>
                             role.toLocaleLowerCase() ===
                             value.trim().toLocaleLowerCase(),
                         );

@@ -18,20 +18,30 @@ export async function POST(request: Request) {
   try {
     const req_data: user_data = await request.json();
 
-    const user = await prisma.user.findUnique({
-      where: {
-        email: req_data.email,
-      },
+    if (!req_data.email || !req_data.admin_email) {
+      return NextResponse.json({
+        message: "Email and organization are required",
+        status: 400,
+      });
+    }
+
+    const existing_user = await prisma.user.findUnique({
+      where:{
+        email_admin_email: {
+          email: req_data.email,
+          admin_email: req_data.admin_email,
+        },
+      }      
     });
 
-    if (!user) {
+    if (!existing_user) {
       return NextResponse.json({
         message: "Entered Email is invalid",
         status: 401,
       });
     }
 
-    const isMatched = await bcrypt.compare(req_data.password!, user.password!);
+    const isMatched = await bcrypt.compare(req_data.password!, existing_user.password!);
 
     if (!isMatched) {
       return NextResponse.json({
@@ -39,7 +49,7 @@ export async function POST(request: Request) {
         status: 401,
       });
     }    
-    if(user.is_active === false) {
+    if(existing_user.is_active === false) {
       return NextResponse.json({
         message: "You account is temporarily disabled by the admin",
         status: 401,
@@ -50,8 +60,9 @@ export async function POST(request: Request) {
       message: "Login successful",
       status: 200,
       data: {
-        f_name: user.f_name,
-        email: user.email,
+        f_name: existing_user.f_name,
+        email: existing_user.email,
+        admin_email: existing_user.admin_email,
       },
     });
 
@@ -63,8 +74,9 @@ export async function POST(request: Request) {
 
     const newToken = jwt.sign(
       {
-        email: req_data.email,
-        role: user.role,
+        email: existing_user.email,
+        admin_email: existing_user.admin_email,
+        role: existing_user.role,
       },
       JWT_SECRET,
       {

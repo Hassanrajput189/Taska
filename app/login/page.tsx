@@ -4,6 +4,8 @@ import axios from "axios";
 import context from "@/context/context";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { admin_option } from "@/interfaces";
+import SelectOrgCard from "@/app/components/SelectOrgCard";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,54 +14,90 @@ const Login = () => {
   const [loginType, setLoginType] = useState<"individual" | "organization">(
     "individual"
   );
-  const { router, setIsAdmin } = useContext(context);
+  const [orgs, setOrgs] = useState<admin_option[]>([]);
+  const [showOrgPopup, setShowOrgPopup] = useState(false);
+  const { router, setIsAdmin, setAdminEmail } = useContext(context);
 
-  const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+  const finishLogin = (data: any, isOrg: boolean) => {
+    localStorage.setItem("name", data.data.f_name);
+    localStorage.setItem("email", data.data.email);
+    if (isOrg) {
+      localStorage.removeItem("admin_email");
+      setAdminEmail("");
+    } else {
+      localStorage.setItem("admin_email", data.data.admin_email);
+      setAdminEmail(data.data.admin_email);
+    }
+    setIsAdmin(isOrg);
+    toast.success(data["message"]);
+    router.push("/");
+  };
 
-    const endpoint =
-      loginType === "organization"
-        ? "/api/users/admin/login"
-        : "/api/users/login";
-
-    const response = await axios.post(
-      endpoint,
-      {
-        email: email,
-        password: password,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }
+  const loginOrganization = async () => {
+    const { data } = await axios.post(
+      "/api/users/admin/login",
+      { email, password },
+      { headers: { "Content-Type": "application/json" }, withCredentials: true }
     );
+    if (data.status === 200) finishLogin(data, true);
+    else toast.error(data["message"]);
+  };
 
-    const data = response.data;
-
+  const loginIndividual = async (admin_email: string) => {
+    const { data } = await axios.post(
+      "/api/users/login",
+      { email, password, admin_email },
+      { headers: { "Content-Type": "application/json" }, withCredentials: true }
+    );
     if (data.status === 200) {
-      localStorage.setItem("name", data.data.f_name);
-      localStorage.setItem("email", data.data.email);
-      endpoint === "/api/users/admin/login"
-        ? setIsAdmin(true)
-        : setIsAdmin(false);
-
-      toast.success(data["message"]);
-      setLoading(false);
-      router.push("/");
+      setShowOrgPopup(false);
+      finishLogin(data, false);
     } else {
       toast.error(data["message"]);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (loginType === "organization") {
+        await loginOrganization();
+        return;
+      }
+
+      const res = await axios.post("/api/users/fetch_admin", { email });
+      const admins: admin_option[] = res.data.admins ?? [];
+
+      if (admins.length === 0) {
+        toast.error("Entered Email is invalid");
+      } else if (admins.length === 1) {
+        await loginIndividual(admins[0].admin_email);
+      } else {
+        setOrgs(admins);
+        setShowOrgPopup(true);
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
       setLoading(false);
     }
   };
 
-  
+  const handleSelectOrg = async (admin_email: string) => {
+    setLoading(true);
+    try {
+      await loginIndividual(admin_email);
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col justify-center items-center p-4 bg-[url('/signup_login_bg.png')] bg-cover bg-center h-screen w-full">
-      <div className="w-1/2 md:w-1/3 flex justify-center items-center bg-white py-4">
+      <div className="w-11/12 sm:w-3/4 md:w-1/2 lg:w-1/3 flex justify-center items-center bg-white py-4">
         <div className="w-full max-w-md">
           <div className="flex justify-center items-center gap-2">
             <div>
@@ -161,6 +199,14 @@ const Login = () => {
           </div>          
         </div>
       </div>
+      {showOrgPopup && (
+        <SelectOrgCard
+          admins={orgs}
+          loading={loading}
+          onSelect={handleSelectOrg}
+          onClose={() => setShowOrgPopup(false)}
+        />
+      )}
     </div>
   );
 };

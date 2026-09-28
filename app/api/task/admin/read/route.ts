@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { user_data } from "@/interfaces";
+import { admin_data } from "@/interfaces";
 
 export async function POST(request: Request) {
   try {
-    const req_data = await request.json();
-
+    const req_data:admin_data = await request.json();
+    console.log("req_data is ",req_data)
     const tasks = await prisma.task.findMany({
       where: {
         admin_email: req_data.email,

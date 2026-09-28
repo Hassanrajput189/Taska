@@ -23,13 +23,16 @@ const Navbar = () => {
     module,
     setUserName,
     setUserEmail,
+    setAdminEmail,
     setShowCreateUserCard,
   } = useContext(context);
   const reset = () => {
   localStorage.removeItem("name");
   localStorage.removeItem("email");
+  localStorage.removeItem("admin_email");
   setUserName(null);
   setUserEmail(null);
+  setAdminEmail("");
   setTasks([]);
   setUsers([]);
   setAssignees([]);

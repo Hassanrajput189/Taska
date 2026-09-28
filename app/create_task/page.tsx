@@ -7,7 +7,7 @@ import context from "@/context/context";
 import toast from "react-hot-toast";
 import { user_data } from "@/interfaces";
 import SideBar from "../components/SideBar";
-import { handleTaskFetch } from "@/utils";
+import { handleTaskFetch ,handleAssigneeFetch} from "@/utils";
 
 const Create_Task = () => {
   const [title, setTitle] = useState("");
@@ -17,9 +17,23 @@ const Create_Task = () => {
   const [assign, setAssign] = useState("");
   const [desc, setDesc] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const { assignees, router, showSideBar, setTasks, userEmail } =
+  
+  const { assignees, router, showSideBar, setShowSideBar, setTasks,setAssignees,userEmail } =
     useContext(context);
+    useEffect(() => {
+  const getData = async () => {
+    const email = localStorage.getItem("email")!
+    try {
+      console.log("user email is ",email)
+      await handleAssigneeFetch(email, setAssignees);
+    } catch (error) {
+      console.error("Failed to fetch assignees:", error);
+    }
+  };
+
+  getData();
+}, [userEmail]);
+
 
   const handleCreateTask = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,13 +78,16 @@ const Create_Task = () => {
   return (
     <>
       <div className="flex w-full">
-        <div>
-          {showSideBar && (
-            <div>
-              <SideBar />
-            </div>
-          )}
-        </div>
+        {showSideBar && (
+          <>
+            {/* Backdrop, mobile only — clicking it closes the popup sidebar */}
+            <div
+              className="md:hidden fixed inset-0 z-40 bg-[#0000005C]"
+              onClick={() => setShowSideBar(false)}
+            />
+            <SideBar />
+          </>
+        )}
 
         <div className="w-full">
           <Navbar />
@@ -90,7 +107,7 @@ const Create_Task = () => {
               onSubmit={handleCreateTask}
               className="flex flex-col justify-between rounded-xl p-8 w-full max-w-6xl max-h-4xl h-[90vh] bg-white"
             >
-              <div className="grid grid-cols-2 gap-x-10 gap-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 ">
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-2">
                     Title
@@ -169,8 +186,9 @@ const Create_Task = () => {
                   >
                     Assignee
                   </label>
-
-                  <select
+                  {assignees.length > 0 ?
+                    (
+                      <select
                     name="assignee"
                     value={assign}
                     onChange={(e) => {
@@ -182,12 +200,17 @@ const Create_Task = () => {
                       Select an assignee
                     </option>
 
-                    {assignees?.map((assignee: user_data) => (
+                    {assignees.map((assignee: user_data) => (
                       <option key={assignee.email} value={assignee.email}>
                         {assignee.email}
                       </option>
                     ))}
                   </select>
+                    ):(
+                      <p>Cannot Assign tasks When there are no Users</p>
+                    )
+                  }
+                  
                 </div>
 
                 <div>

@@ -6,23 +6,43 @@ export async function DELETE(request: Request) {
     // Get request data
     const req_data = await request.json();
 
-    const  email  = req_data.email;
-
-    // Validate required field
-    if (!email) {
+    // Validate email
+    if (!req_data.email || !req_data.admin_email) {
       return NextResponse.json(
         {
           message: "Email is required",
           status: 400,
         },
-        { status: 400 }
       );
     }
+
+    const existing = await prisma.user.findUnique({
+      where: {
+        email_admin_email: {
+          email: req_data.email!,
+          admin_email: req_data.admin_email!,
+        },
+      },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        {
+          message: "No user exists with this email",
+          status: 404,
+        },        
+      );
+    }    
+
+    
 
     // Attempt to delete the user
     await prisma.user.delete({
       where: {
-        email: email,
+        email_admin_email: {
+          email: req_data.email!,
+          admin_email: req_data.admin_email!,
+        },
       },
     });
 

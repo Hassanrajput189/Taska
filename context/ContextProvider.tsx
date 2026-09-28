@@ -6,21 +6,34 @@ import { task_info, user_data } from "@/interfaces";
 import { useRouter} from "next/navigation";
 
 
+
 const ContextProvider = ({ children }: { children: React.ReactNode }) => {
-const [userName,setUserName] = useState<string|null>(null)
-const [userEmail,setUserEmail] = useState<string|null>(null)
-const [tasks, setTasks] = useState<task_info[]|null>([]);
-const [users,setUsers] = useState<user_data[]|null>([]);
-const [assignees,setAssignees] = useState<user_data[]|null>([])
-const [selectedTask, setSelectedTask] = useState<task_info | null>(null);
-const [selectedUser, setSelectedUser] = useState<user_data | null>(null);
-const [showTask,setShowTask] = useState<boolean|null>(false)
-const [showTaskEditCard, setShowTaskEditCard] = useState<boolean|null>(false);
-const [showUserEditCard, setShowUserEditCard] = useState<boolean|null>(false);
-const [showSideBar, setShowSideBar] = useState<boolean|null>(false);
-const [isAdmin,setIsAdmin] = useState<boolean|null>(false)
-const [showCreateUserCard,setShowCreateUserCard] = useState(false)
-const [module,setModule] = useState<string|null>("task")
+const [userName,setUserName] = useState<string>("")
+const [userEmail,setUserEmail] = useState<string>("")
+const [adminEmail,setAdminEmail] = useState<string>("")
+const [tasks, setTasks] = useState<task_info[]>([]);
+const [users,setUsers] = useState<user_data[]>([]);
+const [isAdmin,setIsAdmin] = useState<boolean>(false)
+const [assignees,setAssignees] = useState<user_data[]>([])
+const [selectedTask, setSelectedTask] = useState<task_info>({});
+const [selectedUser, setSelectedUser] = useState<user_data >({});
+const [showTask,setShowTask] = useState<boolean>(false)
+const [showTaskEditCard, setShowTaskEditCard] = useState<boolean>(false);
+const [showUserEditCard, setShowUserEditCard] = useState<boolean>(false);
+const [showAssignTaskCard, setShowAssignTaskCard] = useState<boolean>(false);
+const [showSideBar, setShowSideBar] = useState<boolean>(false);
+const [showCreateUserCard,setShowCreateUserCard] = useState<boolean>(false)
+const [showUserPermissionCard,setShowUserPermissionCard] = useState<boolean>(false)
+const [permission,setPermission] = useState<string>("") 
+const [module,setModule] = useState<string>("task")
+const roles = [
+    "Manager",
+    "Doctor",
+    "Engineer",
+    "Teacher",
+    "Consultant",
+    "Other",
+  ];
 const router = useRouter()
 
 
@@ -32,6 +45,8 @@ const router = useRouter()
         setUserName,
         userEmail,
         setUserEmail,        
+        adminEmail,
+        setAdminEmail,
         tasks,        
         setTasks,           
         users,
@@ -48,14 +63,21 @@ const router = useRouter()
         setShowTaskEditCard,
         showUserEditCard,
         setShowUserEditCard,
+        showAssignTaskCard,
+        setShowAssignTaskCard,
+        permission,
+        setPermission,
         showSideBar,
         setShowSideBar,        
+        showUserPermissionCard,
+        setShowUserPermissionCard,
         isAdmin,
-        setIsAdmin,                
+        setIsAdmin,                        
         module,
         setModule,      
         showCreateUserCard,
         setShowCreateUserCard,
+        roles,
         router,
       }}
     >

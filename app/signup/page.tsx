@@ -140,7 +140,7 @@ const Signup = () => {
 
   return (
     <div className="flex flex-col justify-center items-center p-4 bg-[url('/signup_login_bg.png')] bg-cover bg-center h-screen w-full">
-      <div className="w-1/2 md:w-1/3 flex justify-center items-center bg-white py-4">
+      <div className="w-11/12 sm:w-3/4 md:w-1/2 lg:w-1/3 flex justify-center items-center bg-white py-4">
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="flex justify-center items-center gap-2">

@@ -40,7 +40,10 @@ export async function PATCH(request: Request) {
     // Confirm the target user exists
     const existing = await prisma.user.findUnique({
       where: {
-        email,
+        email_admin_email:{
+          email:req_data.email,
+          admin_email:req_data.admin_email
+        }
       },
     });
 
@@ -58,7 +61,10 @@ export async function PATCH(request: Request) {
 
     const updatedUser = await prisma.user.update({
       where: {
-        email,
+        email_admin_email:{
+          email:req_data.email,
+          admin_email:req_data.admin_email,
+        }
       },
       data: updateData,
     });

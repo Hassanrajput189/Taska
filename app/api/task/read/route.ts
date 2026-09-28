@@ -10,6 +10,7 @@ export async function POST(request: Request) {
     const tasks = await prisma.task.findMany({
       where: {
         assign: req_data.assign!,
+        ...(req_data.admin_email ? { admin_email: req_data.admin_email } : {}),
       },
     });
 

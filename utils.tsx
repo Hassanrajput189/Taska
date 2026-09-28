@@ -37,7 +37,8 @@ export const handleAssigneeFetch = async (
     const data = response.data;    
     
     if (data.status === 200) {      
-
+      console.log(email)
+      console.log(data.data)
       setAssignees(data.data);      
           
     }
@@ -51,12 +52,12 @@ export const handleAssigneeFetch = async (
 
 
   export const handleAdminDataFetch = async (
-    admin_email:string,    
+    email:string,    
     setTasks: React.Dispatch<SetStateAction<task_info[] | null>>,    
   )=> {
     
     const response = await axios.post("/api/task/admin/read", {
-      admin_email,      
+      email,      
     });
 
     const data = response.data;
@@ -74,9 +75,11 @@ export const handleAssigneeFetch = async (
     export const handleTaskFetch = async (
       email:String,
       setTasks: React.Dispatch<SetStateAction<task_info[] | null>>,      
+      admin_email?:string,
     ) => {    
     const response = await axios.post("/api/task/read", {
       assign: email,
+      admin_email,
     });
 
     const data = response.data;
@@ -106,6 +109,7 @@ export const getStatusClass = (status?: string) => {
       return "bg-gray-300 text-black";
   }
 };
+
 export const getPriorityFlag = (priority?: string) => {
   const lowerPriority = priority?.toLowerCase();
   switch (lowerPriority) {
