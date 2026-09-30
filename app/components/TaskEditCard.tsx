@@ -22,9 +22,8 @@ const TaskEditCard = ({
   const [newAssign, setNewAssign] = useState(assign);
   const [newPriority, setNewPriority] = useState(priority);
   const [newStatus, setNewStatus] = useState(status);
-  const [newDesc, setNewDesc] = useState(desc);
-  const [loading, setLoading] = useState(false);
-  const { userName } = useContext(context);
+  const [newDesc, setNewDesc] = useState(desc);  
+  const { userName,loading,setLoading } = useContext(context);
   const handleUpdate = async () => {
     const updatedTask = {
       title: title,
@@ -193,7 +192,7 @@ const TaskEditCard = ({
               onClick={handleUpdate}
               className="w-full sm:w-auto px-5 py-2 rounded-lg bg-[#546FFF] text-white hover:bg-blue-600 transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              {loading ? "Updating" : "Save Changes"}
+              Save Changes
             </button>
           </div>
         </div>

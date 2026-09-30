@@ -26,6 +26,7 @@ const [showCreateUserCard,setShowCreateUserCard] = useState<boolean>(false)
 const [showUserPermissionCard,setShowUserPermissionCard] = useState<boolean>(false)
 const [permission,setPermission] = useState<string>("") 
 const [module,setModule] = useState<string>("task")
+const [loading,setLoading] = useState<boolean>(false)
 const roles = [
     "Manager",
     "Doctor",
@@ -77,6 +78,8 @@ const router = useRouter()
         setModule,      
         showCreateUserCard,
         setShowCreateUserCard,
+        loading,
+        setLoading,
         roles,
         router,
       }}

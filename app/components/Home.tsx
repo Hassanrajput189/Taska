@@ -26,7 +26,7 @@ export default function Home() {
     setIsAdmin,
     userEmail,
     adminEmail,
-    
+    setLoading,
    } =
     useContext(context);
   const [allTasks, setAllTasks] = useState([]);
@@ -125,12 +125,12 @@ export default function Home() {
     const fetchData = async () => {
       
       if (isAdmin) {
-        await handleAssigneeFetch(userEmail, setAssignees);
-        const value_users = await handleUserFetch(userEmail, setUsers);
+        await handleAssigneeFetch(userEmail, setAssignees,setLoading);
+        const value_users = await handleUserFetch(userEmail, setUsers,setLoading);
         
         setAllUsers(value_users);
       } else {
-        const value_tasks = await handleTaskFetch(userEmail, setTasks, adminEmail);
+        const value_tasks = await handleTaskFetch(userEmail, setTasks,setLoading ,adminEmail);
         
         setAllTasks(value_tasks);
       }
@@ -146,7 +146,7 @@ export default function Home() {
       
       if (isAdmin && assignees && assignees.length > 0) {
       
-        const value_tasks = await handleAdminDataFetch(userEmail, setTasks);
+        const value_tasks = await handleAdminDataFetch(userEmail, setTasks,setLoading);
       
         setTasks(value_tasks)
         setAllTasks(value_tasks);

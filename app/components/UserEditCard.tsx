@@ -13,6 +13,8 @@ const UserEditCard = ({ f_name, email, role }: user_data) => {
     isAdmin,
     userEmail,
     roles,
+    loading,
+    setLoading
   } = useContext(context);
 
   // Check if the current user's role exists in the predefined roles
@@ -38,7 +40,7 @@ const UserEditCard = ({ f_name, email, role }: user_data) => {
     !isPredefinedRole,
   );
 
-  const [loading, setLoading] = useState(false);
+  
 
   const handleUpdate = async () => {
     if (!isAdmin) {
@@ -269,7 +271,7 @@ const UserEditCard = ({ f_name, email, role }: user_data) => {
               onClick={handleUpdate}
               className="w-full sm:w-auto px-5 py-2 rounded-lg bg-[#546FFF] text-white hover:bg-blue-600 transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              {loading ? "Updating..." : "Save Changes"}
+              Save Changes
             </button>
           </div>
 

@@ -21,8 +21,8 @@ const Signup = () => {
   const [showOTPInput, setShowOTPInput] = useState(false);
 
   const [OTPloading, setOTPLoading] = useState(false);
-  const [signupLoading,setSignupLoading] = useState(false);
-  const { router } = useContext(context);
+  
+  const { router,loading,setLoading } = useContext(context);
 
   const roles = [
     "Manager",
@@ -96,7 +96,7 @@ const Signup = () => {
       return;
     }
 
-    setSignupLoading(true);
+    setLoading(true);
 
     try {
       const response = await axios.post(
@@ -134,7 +134,7 @@ const Signup = () => {
           "Something went wrong. Please try again.",
       );
     } finally {
-      setSignupLoading(false);
+      setLoading(false);
     }
   };
 
@@ -354,10 +354,10 @@ const Signup = () => {
             <button
               type="button"
               onClick={handleSignup}
-              disabled={signupLoading}
+              disabled={loading}
               className="w-full mt-4 bg-indigo-500 text-white py-3 rounded-2xl font-semibold hover:bg-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {signupLoading ? "Signing up..." : "Signup"}
+              Signup
             </button>
           </div>
         </div>

@@ -9,14 +9,13 @@ import SelectOrgCard from "@/app/components/SelectOrgCard";
 
 const Login = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState("");  
   const [loginType, setLoginType] = useState<"individual" | "organization">(
     "individual"
   );
   const [orgs, setOrgs] = useState<admin_option[]>([]);
   const [showOrgPopup, setShowOrgPopup] = useState(false);
-  const { router, setIsAdmin, setAdminEmail } = useContext(context);
+  const { router, setIsAdmin, setAdminEmail ,loading,setLoading} = useContext(context);
 
   const finishLogin = (data: any, isOrg: boolean) => {
     localStorage.setItem("name", data.data.f_name);
@@ -182,7 +181,7 @@ const Login = () => {
                 type="submit"
                 className="w-full bg-indigo-500 text-white py-3 rounded-2xl font-semibold hover:bg-indigo-700 transition-all duration-200"
               >
-                {loading ? "Signing you in..." : "SIGN IN"}
+                SIGN IN
               </button>
             </form>
 

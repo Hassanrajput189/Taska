@@ -6,8 +6,11 @@ import { task_info ,user_data} from "./interfaces";
 export const handleUserFetch = async (
   email:string,
   setUsers: React.Dispatch<SetStateAction<user_data[] | null>>,      
+  setLoading:React.Dispatch<SetStateAction<boolean>>,      
 ) => {            
-    const response = await axios.post("/api/users/admin/fetch_users",
+  try{
+    setLoading(true)
+     const response = await axios.post("/api/users/admin/fetch_users",
       {
         email
       }
@@ -20,14 +23,24 @@ export const handleUserFetch = async (
       setUsers(data.data);      
       return data.data
     }
+  }
+  catch(error){
     return []
+  }
+  finally{
+    setLoading(false)
+  }
+    
   };
 
 
 export const handleAssigneeFetch = async (
   email:string,
   setAssignees: React.Dispatch<SetStateAction<user_data[] | null>>,      
+  setLoading: React.Dispatch<SetStateAction<boolean>>,      
 ) => {            
+  try{
+    setLoading(true)
     const response = await axios.post("/api/task/admin/assignees",
       {
         email
@@ -42,10 +55,14 @@ export const handleAssigneeFetch = async (
       setAssignees(data.data);      
           
     }
-    else{
+
+  }
+  catch(error){
       setAssignees([])
-    }
-    
+  }
+  finally{
+    setLoading(false)
+  }
   };
 
 
@@ -54,9 +71,11 @@ export const handleAssigneeFetch = async (
   export const handleAdminDataFetch = async (
     email:string,    
     setTasks: React.Dispatch<SetStateAction<task_info[] | null>>,    
+    setLoading: React.Dispatch<SetStateAction<boolean>>,      
   )=> {
-    
-    const response = await axios.post("/api/task/admin/read", {
+    try{
+      setLoading(true)
+      const response = await axios.post("/api/task/admin/read", {
       email,      
     });
 
@@ -66,18 +85,26 @@ export const handleAssigneeFetch = async (
     
       setTasks(data.tasks);      
       return data.tasks
-    } else {
+    }    
+    }
+    catch(error){
       setTasks([]);    
       return []  
-    }    
+    }
+    finally{
+      setLoading(false)
+    }
   };
 
     export const handleTaskFetch = async (
       email:String,
       setTasks: React.Dispatch<SetStateAction<task_info[] | null>>,      
-      admin_email?:string,
+      setLoading: React.Dispatch<SetStateAction<boolean>>,      
+      admin_email:string,
     ) => {    
-    const response = await axios.post("/api/task/read", {
+    try{
+      setLoading(true)
+      const response = await axios.post("/api/task/read", {
       assign: email,
       admin_email,
     });
@@ -86,10 +113,17 @@ export const handleAssigneeFetch = async (
     if (data.status === 200 && data.tasks.length > 0) {
       setTasks(data.tasks);      
       return data.tasks
-    } else {
-      setTasks([]);
+    }
+    
+    }
+    catch(error){
+       setTasks([]);
       return [] 
     }
+    finally{
+      setLoading(false)
+    }
+    
   };
 
 

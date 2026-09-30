@@ -5,7 +5,7 @@ import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 
 const Navbar = () => {
-  const [loading, setLoading] = useState(false);
+  
   const {
     router,
     setTasks,
@@ -25,6 +25,8 @@ const Navbar = () => {
     setUserEmail,
     setAdminEmail,
     setShowCreateUserCard,
+    loading,
+    setLoading,
   } = useContext(context);
   const reset = () => {
   localStorage.removeItem("name");
@@ -99,7 +101,7 @@ const Navbar = () => {
           onClick={handleLogout}
           className="  text-white font-semibold bg-[#546FFF] cursor-pointer hover:font-bold transition-all text-md px-5 py-1 rounded-md"
         >
-          {loading ? "Logging out..." : "Logout"}
+          Logout
         </button>
       </div>
     </nav>

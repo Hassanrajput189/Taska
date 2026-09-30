@@ -16,16 +16,16 @@ const Create_Task = () => {
   const [status, setStatus] = useState("Pending");
   const [assign, setAssign] = useState("");
   const [desc, setDesc] = useState("");
-  const [loading, setLoading] = useState(false);
   
-  const { assignees, router, showSideBar, setShowSideBar, setTasks,setAssignees,userEmail } =
+  
+  const { assignees, router, showSideBar, setShowSideBar, setTasks,setAssignees,userEmail,loading,setLoading } =
     useContext(context);
     useEffect(() => {
   const getData = async () => {
     const email = localStorage.getItem("email")!
     try {
       console.log("user email is ",email)
-      await handleAssigneeFetch(email, setAssignees);
+      await handleAssigneeFetch(email, setAssignees,setLoading);
     } catch (error) {
       console.error("Failed to fetch assignees:", error);
     }
@@ -65,7 +65,7 @@ const Create_Task = () => {
     const data = response.data;
 
     if (data.status === 201) {
-      handleTaskFetch(assign, setTasks);
+      handleTaskFetch(assign, setTasks,setLoading,userEmail);
       toast.success(data.message);
       setLoading(false);
       router.back();
@@ -236,7 +236,7 @@ const Create_Task = () => {
                   disabled={!userEmail || loading}
                   className="bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-400 text-white text-sm font-medium px-10 py-3 rounded-lg transition-all duration-200"
                 >
-                  {loading ? "Creating Task..." : "Create Task"}
+                  Create Task
                 </button>
               </div>
             </form>

@@ -7,10 +7,9 @@ import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 
 const AssignTaskCard = ({ title, assign }: task_info) => {
-  const { setShowAssignTaskCard, setTasks, assignees ,userEmail} = useContext(context);
+  const { setShowAssignTaskCard, setTasks, assignees ,userEmail,loading,setLoading} = useContext(context);
 
-  const [selectedAssignee, setSelectedAssignee] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [selectedAssignee, setSelectedAssignee] = useState("");  
 
   const handleAssign = async () => {
     if (!selectedAssignee) {
@@ -115,7 +114,7 @@ const AssignTaskCard = ({ title, assign }: task_info) => {
               onClick={handleAssign}
               className="w-full sm:w-auto px-5 py-2 rounded-lg bg-[#546FFF] text-white hover:bg-blue-600 transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              {loading ? "Assigning..." : "Assign"}
+               Assign
             </button>
           </div>
         </div>

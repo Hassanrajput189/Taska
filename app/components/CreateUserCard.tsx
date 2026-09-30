@@ -7,7 +7,7 @@ import { useContext, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 const CreateUserCard = () => {
-  const { setShowCreateUserCard, router,roles } = useContext(context);
+  const { setShowCreateUserCard, roles,loading,setLoading } = useContext(context);
   
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -15,7 +15,7 @@ const CreateUserCard = () => {
   const [role, setRole] = useState(roles[0]);  
   const [other, setOther] = useState("");
   const [showOtherInput, setShowOtherInput] = useState(false);
-  const [loading, setLoading] = useState(false);
+  
   const { userEmail,setUsers } = useContext(context);
 
   const handleCreateUser = async () => {
@@ -51,7 +51,7 @@ const CreateUserCard = () => {
 
       if (data.status === 201) {
         toast.success(data.message);
-        await handleUserFetch(userEmail,setUsers)
+        await handleUserFetch(userEmail,setUsers,setLoading)
         setLoading(false);
 
         setShowCreateUserCard(false);
@@ -239,7 +239,7 @@ const CreateUserCard = () => {
               onClick={handleCreateUser}
               className="w-full sm:w-auto px-5 py-2 rounded-lg bg-[#546FFF] text-white hover:bg-blue-600 transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              {loading ? "Creating User..." : "Create User"}
+              Create User
             </button>
           </div>
         </div>

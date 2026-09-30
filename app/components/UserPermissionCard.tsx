@@ -18,10 +18,13 @@ const UserPermissionCard = ({
     setAssignees,
     permission,
     setTasks,
-    module,
+    module,    
+    setLoading,
   } = useContext(context);
 
   const handleTaskDelete = async () => {
+    try{
+      setLoading(true)
     const response = await axios.delete("/api/task/admin/delete", {
       data: {
         title,
@@ -39,14 +42,22 @@ const UserPermissionCard = ({
             !(task.title === title && (task.assign ?? "") === (assign ?? "")),
         ),
       );
-
+      
       toast.success(data.message);
     } else {
       toast.error(data.message);
+    }    
+    }
+    catch (error) {
+      toast.error("Failed to delete task")
+}
+    finally{
+      setLoading(false)
     }
   };
   const handleUserTasksDelete = async () => {
     try {
+      setLoading(true)
       const response = await axios.delete("/api/task/admin/deleteAll", {
         data: {
           assign: email,
@@ -66,9 +77,13 @@ const UserPermissionCard = ({
     } catch (error) {
       toast.error("Failed to delete user's tasks");
     }
+    finally{
+      setLoading(false)
+    }
   }; // Delete user
   const handleUserDelete = async () => {
     try {
+      setLoading(true)
       const response = await axios.delete("/api/users/admin/delete", {
         data: {
           email,
@@ -83,7 +98,7 @@ const UserPermissionCard = ({
           prev.filter((user) => user.email !== email),
         );
         await handleUserTasksDelete();
-        await handleAssigneeFetch(admin_email!, setAssignees);
+        await handleAssigneeFetch(admin_email!, setAssignees,setLoading);
         toast.success(data.message);
       } else {
         toast.error(data.message);
@@ -91,11 +106,15 @@ const UserPermissionCard = ({
     } catch (error) {
       toast.error("Failed to delete user");
     }
+    finally{
+      setLoading(false)
+    }
   };
 
   // Disable user
   const handleUserDisable = async () => {
     try {
+      setLoading(true)
       const response = await axios.patch("/api/users/admin/disable", {
         email,
         admin_email,
@@ -116,12 +135,15 @@ const UserPermissionCard = ({
               : user,
           ),
         );
-        handleAssigneeFetch(userEmail, setAssignees);
+        handleAssigneeFetch(userEmail, setAssignees,setLoading);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
       toast.error("Failed to disable user");
+    }
+    finally{
+      setLoading(false)
     }
   };
   const switchPermissionMethods = async (permission?: string) => {

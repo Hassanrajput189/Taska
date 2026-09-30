@@ -13,6 +13,7 @@ import SideBar from "./components/SideBar";
 import CreateUserCard from "./components/CreateUserCard";
 import AssignTaskCard from "./components/AssignTaskCard";
 import UserPermissionCard from "./components/UserPermissionCard";
+import LoadingPage from "./components/LoadingPage";
 
 export default function Main() {
   const {
@@ -32,6 +33,7 @@ export default function Main() {
     showCreateUserCard,
     showAssignTaskCard,
     showUserPermissionCard,
+    loading
   } = useContext(context);
 
   const handleRedirect = async () => {
@@ -133,6 +135,11 @@ export default function Main() {
             title={selectedTask.title}
             assign={selectedTask.assign}
           />
+        </div>
+      )}
+      {loading && (
+        <div className="fixed z-50 w-full top-0">
+        <LoadingPage/>
         </div>
       )}
     </div>
