@@ -23,11 +23,10 @@ const Create_Task = () => {
     useEffect(() => {
   const getData = async () => {
     const email = localStorage.getItem("email")!
-    try {
-      console.log("user email is ",email)
+    try {      
       await handleAssigneeFetch(email, setAssignees,setLoading);
     } catch (error) {
-      console.error("Failed to fetch assignees:", error);
+      setAssignees([]);
     }
   };
 

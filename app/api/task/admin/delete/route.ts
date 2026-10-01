@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 export async function DELETE(request: Request) {
   try {
     const req_data: task_info = await request.json();
-    console.log("req from delete task", req_data.assign);
+    
     // Validate required fields
     if (!req_data.title || typeof req_data.assign !== "string") {
       return NextResponse.json(

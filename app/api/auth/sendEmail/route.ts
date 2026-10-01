@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       otp,
     );
 
-    console.log("Email result:", emailSent);
+    
 
     if (!emailSent.success) {
       return NextResponse.json({ message: emailSent.message }, { status: 500 });

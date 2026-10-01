@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     const req_data: user_data = await request.json();
 
-    console.log(req_data);
+    
     const existing_user = await prisma.user.findUnique({
       where: {
         email_admin_email: {

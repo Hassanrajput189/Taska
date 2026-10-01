@@ -15,7 +15,7 @@ export async function POST(request: Request) {
         email: true,                
       },
     });
-    console.log("Assignees:", assignees);
+    
 
     
 

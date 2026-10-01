@@ -6,7 +6,7 @@ export async function PATCH(request: Request) {
   try {
     
     const req_data: user_data = await request.json();
-    console.log("req_data for disable is ",req_data)
+    
 
     // Validate email
     if (!req_data.email || !req_data.admin_email) {

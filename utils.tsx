@@ -50,8 +50,7 @@ export const handleAssigneeFetch = async (
     const data = response.data;    
     
     if (data.status === 200) {      
-      console.log(email)
-      console.log(data.data)
+      
       setAssignees(data.data);      
           
     }
